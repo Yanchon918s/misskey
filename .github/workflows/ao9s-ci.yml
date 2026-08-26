@@ -49,5 +49,29 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Lint
-        run: pnpm lint
+      - name: ESLint
+        run: >-
+          pnpm
+          --filter backend
+          --filter frontend
+          --filter frontend-shared
+          --filter frontend-builder
+          --filter frontend-embed
+          --filter icons-subsetter
+          --filter sw
+          --filter misskey-js
+          --filter misskey-bubble-game
+          --filter misskey-reversi
+          run eslint
+
+      - name: Typecheck supported workspaces
+        run: >-
+          pnpm
+          --filter backend
+          --filter frontend
+          --filter sw
+          --filter misskey-js
+          run typecheck
+
+      - name: Check declarations
+        run: pnpm check-dts

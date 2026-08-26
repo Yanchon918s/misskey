@@ -4,7 +4,7 @@
 
 ## ブランチと権限境界
 
-- `ao9s/production`: 本番へ出すソース。Pull RequestとpushはGitHub-hosted runnerでlintとproduction buildを実行する。
+- `ao9s/production`: 本番へ出すソース。Pull RequestとpushはGitHub-hosted runnerでfull build、上流CI対象のESLint / typecheck / DTS検査を実行する。
 - `ao9s/deploy`: GitOps controllerが読む本番Deployment。成功したimage buildだけがimmutable digestを更新する。
 - 公開Pull Requestから自宅K3s、GitHub Packages書き込みtoken、本番Secretへは到達させない。
 - workflowの通常権限はread-onlyとし、GHCR publishとdeploy branch更新に限ってworkflow内で`packages: write` / `contents: write`を要求する。
@@ -12,7 +12,7 @@
 
 ## 自動反映
 
-1. `ao9s/production`のpushに対して`ao9s CI`が`pnpm lint`と`pnpm build`を行う。
+1. `ao9s/production`のpushに対して`ao9s CI`がfull build、上流CI対象のESLint / typecheck / DTS検査を行う。
 2. 成功した同一repositoryのpushだけを`ao9s Publish and Deploy`が受け取る。
 3. GitHub-hosted runnerが`linux/amd64` imageをbuildし、SBOMとprovenanceを付けて`ghcr.io/yanchon918s/misskey`へpushする。
 4. build digestとsource revisionを`ao9s/deploy`の`deploy/production/misskey.yaml`へcommitする。
