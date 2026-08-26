@@ -1,0 +1,133 @@
+name: ao9s Publish and Deploy
+
+on:
+  workflow_run:
+    workflows:
+      - ao9s CI
+    branches:
+      - ao9s/production
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+concurrency:
+  group: ao9s-production-publish
+  cancel-in-progress: true
+
+env:
+  IMAGE_NAME: ghcr.io/yanchon918s/misskey
+  SOURCE_BRANCH: ao9s/production
+  DEPLOY_BRANCH: ao9s/deploy
+
+jobs:
+  publish-and-update-gitops:
+    name: publish-and-update-gitops
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: production
+    steps:
+      - name: Checkout validated source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || env.SOURCE_BRANCH }}
+          path: source
+          submodules: true
+          persist-credentials: false
+
+      - name: Resolve and verify source revision
+        id: source
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_sha="$(git -C source rev-parse HEAD)"
+          branch_sha="$(git ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" "refs/heads/${SOURCE_BRANCH}" | cut -f1)"
+          test -n "$branch_sha"
+          if test "$source_sha" != "$branch_sha"; then
+            echo "A newer source revision exists; this build will not deploy."
+            exit 1
+          fi
+          echo "sha=$source_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push immutable image
+        id: build
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
+        with:
+          context: ./source
+          push: true
+          pull: true
+          platforms: linux/amd64
+          tags: |
+            ${{ env.IMAGE_NAME }}:production
+            ${{ env.IMAGE_NAME }}:sha-${{ steps.source.outputs.sha }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ steps.source.outputs.sha }}
+            org.opencontainers.image.version=2026.7.0-ao9s
+            org.opencontainers.image.licenses=AGPL-3.0-only
+          cache-from: type=gha,scope=ao9s-production-amd64
+          cache-to: type=gha,mode=max,scope=ao9s-production-amd64
+          provenance: mode=max
+          sbom: true
+
+      - name: Checkout deployment branch
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ env.DEPLOY_BRANCH }}
+          path: deployment
+
+      - name: Pin deployment to the published digest
+        env:
+          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          manifest='deployment/deploy/production/misskey.yaml'
+          test "$(grep -Ec '^[[:space:]]+image: ' "$manifest")" -eq 1
+          test "$(grep -Ec '^[[:space:]]+ao9s.net/source-revision: ' "$manifest")" -eq 1
+          sed -i -E "s#^([[:space:]]*)image: .+#\1image: ${IMAGE_NAME}@${IMAGE_DIGEST}#" "$manifest"
+          sed -i -E "s#^([[:space:]]*)ao9s.net/source-revision: .+#\1ao9s.net/source-revision: \"${SOURCE_SHA}\"#" "$manifest"
+
+      - name: Commit deployment revision
+        env:
+          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C deployment diff --check
+          git -C deployment diff --exit-code --quiet && {
+            echo 'Deployment already points to this digest.'
+            exit 0
+          }
+          git -C deployment config user.name 'github-actions[bot]'
+          git -C deployment config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C deployment add deploy/production/misskey.yaml
+          git -C deployment commit -m "chore(deploy): ${SOURCE_SHA:0:12} [skip ci]"
+          git -C deployment push origin "HEAD:${DEPLOY_BRANCH}"
+          {
+            echo '### Misskey production image'
+            echo
+            echo "- Source: \`${SOURCE_SHA}\`"
+            echo "- Image: \`${IMAGE_NAME}@${IMAGE_DIGEST}\`"
+            echo "- GitOps branch: \`${DEPLOY_BRANCH}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
