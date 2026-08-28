@@ -909,6 +909,26 @@ export interface Locale extends ILocale {
      */
     "version": string;
     /**
+     * ビルド識別子
+     */
+    "buildId": string;
+    /**
+     * ソースリビジョン
+     */
+    "sourceRevision": string;
+    /**
+     * 連合先ソフトウェア分布
+     */
+    "federatedSoftwareDistribution": string;
+    /**
+     * バブルタイムライン
+     */
+    "bubbleTimeline": string;
+    /**
+     * バブルタイムラインに表示するリモートサーバーのホスト名を改行で区切って設定します。設定後はクライアントの再接続でストリーミングにも反映されます。
+     */
+    "bubbleTimelineDescription": string;
+    /**
      * メタデータ
      */
     "metadata": string;
@@ -6872,6 +6892,14 @@ export interface Locale extends ILocale {
          * グローバルタイムラインでは、接続している他のすべてのサーバーからの投稿を見られます。
          */
         "global": string;
+        /**
+         * バブルタイムラインでは、管理者が選んだリモートサーバーの公開投稿を見られます。
+         */
+        "bubble": string;
+        /**
+         * メディアタイムラインでは、ホームタイムラインとローカルタイムラインにある添付ファイル付きの投稿を見られます。
+         */
+        "media": string;
     };
     "_serverRules": {
         /**
@@ -8129,6 +8157,10 @@ export interface Locale extends ILocale {
              * ローカルタイムラインの閲覧
              */
             "ltlAvailable": string;
+            /**
+             * バブルタイムラインの閲覧
+             */
+            "btlAvailable": string;
             /**
              * パブリック投稿の許可
              */
@@ -10620,6 +10652,14 @@ export interface Locale extends ILocale {
          * グローバル
          */
         "global": string;
+        /**
+         * バブル
+         */
+        "bubble": string;
+        /**
+         * メディア
+         */
+        "media": string;
     };
     "_play": {
         /**

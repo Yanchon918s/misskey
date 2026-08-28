@@ -80,13 +80,16 @@ const withReplies = computed<boolean>({
 });
 const onlyFiles = computed<boolean>({
 	get: () => {
+		if (src.value === 'media') return true;
 		if (['local', 'social'].includes(src.value) && localSocialTLFilterSwitchStore.value === 'withReplies') {
 			return false;
 		} else {
 			return store.r.tl.value.filter.onlyFiles;
 		}
 	},
-	set: (x) => saveTlFilter('onlyFiles', x),
+	set: (x) => {
+		if (src.value !== 'media') saveTlFilter('onlyFiles', x);
+	},
 });
 
 watch([withReplies, onlyFiles], ([withRepliesTo, onlyFilesTo]) => {
@@ -107,7 +110,7 @@ const withSensitive = computed<boolean>({
 const showFixedPostForm = prefer.model('showFixedPostForm');
 
 async function chooseList(ev: PointerEvent): Promise<void> {
-	const lists = await userListsCache.fetch();
+	const lists = [...await userListsCache.fetch()].sort((a, b) => a.name.localeCompare(b.name));
 	const items: (MenuItem | undefined)[] = [
 		...lists.map(list => ({
 			type: 'link' as const,
@@ -126,7 +129,7 @@ async function chooseList(ev: PointerEvent): Promise<void> {
 }
 
 async function chooseAntenna(ev: PointerEvent): Promise<void> {
-	const antennas = await antennasCache.fetch();
+	const antennas = [...await antennasCache.fetch()].sort((a, b) => a.name.localeCompare(b.name));
 	const items: (MenuItem | undefined)[] = [
 		...antennas.map(antenna => ({
 			type: 'link' as const,
@@ -233,13 +236,19 @@ const headerActions = computed<PageHeaderItem[]>(() => {
 				icon: 'ti ti-eye-exclamation',
 				text: i18n.ts.withSensitive,
 				ref: withSensitive,
-			}, {
-				type: 'switch',
-				icon: 'ti ti-photo',
-				text: i18n.ts.fileAttachedOnly,
-				ref: onlyFiles,
-				disabled: isBasicTimeline(src.value) && hasWithReplies(src.value) ? withReplies : false,
-			}, {
+			});
+
+			if (src.value !== 'media') {
+				menuItems.push({
+					type: 'switch',
+					icon: 'ti ti-photo',
+					text: i18n.ts.fileAttachedOnly,
+					ref: onlyFiles,
+					disabled: isBasicTimeline(src.value) && hasWithReplies(src.value) ? withReplies : false,
+				});
+			}
+
+			menuItems.push({
 				type: 'divider',
 			}, {
 				type: 'switch',

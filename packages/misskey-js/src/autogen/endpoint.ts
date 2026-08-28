@@ -331,6 +331,7 @@ import type {
 	FederationFollowingResponse,
 	FederationInstancesRequest,
 	FederationInstancesResponse,
+	FederationRemoteSoftwareResponse,
 	FederationShowInstanceRequest,
 	FederationShowInstanceResponse,
 	FederationStatsRequest,
@@ -495,6 +496,8 @@ import type {
 	MyAppsResponse,
 	NotesRequest,
 	NotesResponse,
+	NotesBubbleTimelineRequest,
+	NotesBubbleTimelineResponse,
 	NotesChildrenRequest,
 	NotesChildrenResponse,
 	NotesClipsRequest,
@@ -885,6 +888,7 @@ export type Endpoints = {
 	'federation/followers': { req: FederationFollowersRequest; res: FederationFollowersResponse };
 	'federation/following': { req: FederationFollowingRequest; res: FederationFollowingResponse };
 	'federation/instances': { req: FederationInstancesRequest; res: FederationInstancesResponse };
+	'federation/remote-software': { req: EmptyRequest; res: FederationRemoteSoftwareResponse };
 	'federation/show-instance': { req: FederationShowInstanceRequest; res: FederationShowInstanceResponse };
 	'federation/stats': { req: FederationStatsRequest; res: FederationStatsResponse };
 	'federation/update-remote-user': { req: FederationUpdateRemoteUserRequest; res: EmptyResponse };
@@ -996,6 +1000,7 @@ export type Endpoints = {
 	'mute/list': { req: MuteListRequest; res: MuteListResponse };
 	'my/apps': { req: MyAppsRequest; res: MyAppsResponse };
 	'notes': { req: NotesRequest; res: NotesResponse };
+	'notes/bubble-timeline': { req: NotesBubbleTimelineRequest; res: NotesBubbleTimelineResponse };
 	'notes/children': { req: NotesChildrenRequest; res: NotesChildrenResponse };
 	'notes/clips': { req: NotesClipsRequest; res: NotesClipsResponse };
 	'notes/conversation': { req: NotesConversationRequest; res: NotesConversationResponse };

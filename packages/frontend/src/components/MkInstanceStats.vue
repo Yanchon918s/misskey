@@ -48,6 +48,10 @@ SPDX-License-Identifier: AGPL-3.0-only
 					<div class="title">Pub</div>
 					<canvas ref="pubDoughnutEl"></canvas>
 				</div>
+				<div class="software">
+					<div class="title">{{ i18n.ts.federatedSoftwareDistribution }}</div>
+					<canvas ref="softwareDoughnutEl"></canvas>
+				</div>
 			</div>
 		</div>
 	</MkFoldableSection>
@@ -166,14 +170,19 @@ const {
 
 const subDoughnutEl = useTemplateRef('subDoughnutEl');
 const pubDoughnutEl = useTemplateRef('pubDoughnutEl');
+const softwareDoughnutEl = useTemplateRef('softwareDoughnutEl');
 
 let subDoughnutChartInstance: Chart | null = null;
 let pubDoughnutChartInstance: Chart | null = null;
+let softwareDoughnutChartInstance: Chart | null = null;
 
 const { handler: externalTooltipHandler1 } = useChartTooltip({
 	position: 'middle',
 });
 const { handler: externalTooltipHandler2 } = useChartTooltip({
+	position: 'middle',
+});
+const { handler: externalTooltipHandler3 } = useChartTooltip({
 	position: 'middle',
 });
 
@@ -233,6 +242,23 @@ function createDoughnut(chartEl: HTMLCanvasElement, tooltip: ReturnType<typeof u
 	return chartInstance;
 }
 
+function softwareColor(name: string): string {
+	const knownColors: Record<string, string> = {
+		misskey: '#86b300',
+		mastodon: '#6364ff',
+		sharkey: '#2981bf',
+		cherrypick: '#ffbcdc',
+		pleroma: '#fba457',
+		akkoma: '#593196',
+		unknown: '#888888',
+	};
+	if (knownColors[name]) return knownColors[name];
+
+	let hash = 0;
+	for (const char of name) hash = ((hash * 31) + (char.codePointAt(0) ?? 0)) >>> 0;
+	return `hsl(${hash % 360} 65% 55%)`;
+}
+
 onMounted(() => {
 	misskeyApiGet('federation/stats', { limit: 30 }).then(fedStats => {
 		const subs: ChartData = fedStats.topSubInstances.map(x => ({
@@ -273,11 +299,24 @@ onMounted(() => {
 			pubDoughnutChartInstance = createDoughnut(pubDoughnutEl.value, externalTooltipHandler2, pubs);
 		}
 	});
+
+	misskeyApiGet('federation/remote-software', {}).then(distribution => {
+		const software = distribution.map(item => ({
+			name: item.softwareName,
+			color: softwareColor(item.softwareName),
+			value: item.count,
+		}));
+
+		if (softwareDoughnutEl.value != null) {
+			softwareDoughnutChartInstance = createDoughnut(softwareDoughnutEl.value, externalTooltipHandler3, software);
+		}
+	});
 });
 
 onUnmounted(() => {
 	subDoughnutChartInstance?.destroy();
 	pubDoughnutChartInstance?.destroy();
+	softwareDoughnutChartInstance?.destroy();
 });
 </script>
 
@@ -324,7 +363,7 @@ onUnmounted(() => {
 			display: flex;
 			gap: 16px;
 
-			> .sub, > .pub {
+			> .sub, > .pub, > .software {
 				flex: 1;
 				min-width: 0;
 				position: relative;

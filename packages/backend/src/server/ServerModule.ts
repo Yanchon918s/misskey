@@ -37,6 +37,7 @@ import { AntennaChannel } from './api/stream/channels/antenna.js';
 import { ChannelChannel } from './api/stream/channels/channel.js';
 import { DriveChannel } from './api/stream/channels/drive.js';
 import { GlobalTimelineChannel } from './api/stream/channels/global-timeline.js';
+import { BubbleTimelineChannel } from './api/stream/channels/bubble-timeline.js';
 import { HashtagChannel } from './api/stream/channels/hashtag.js';
 import { HomeTimelineChannel } from './api/stream/channels/home-timeline.js';
 import { HybridTimelineChannel } from './api/stream/channels/hybrid-timeline.js';
@@ -87,6 +88,7 @@ import { SigninWithPasskeyApiService } from './api/SigninWithPasskeyApiService.j
 		ChannelChannel,
 		DriveChannel,
 		GlobalTimelineChannel,
+		BubbleTimelineChannel,
 		HashtagChannel,
 		RoleTimelineChannel,
 		ChatUserChannel,

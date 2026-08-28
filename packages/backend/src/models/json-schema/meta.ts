@@ -19,6 +19,18 @@ export const packedMetaLiteSchema = {
 			type: 'string',
 			optional: false, nullable: false,
 		},
+		buildId: {
+			type: 'string',
+			optional: false, nullable: false,
+		},
+		sourceRevision: {
+			type: 'string',
+			optional: false, nullable: true,
+		},
+		bubbleTimelineAvailable: {
+			type: 'boolean',
+			optional: false, nullable: false,
+		},
 		providesTarball: {
 			type: 'boolean',
 			optional: false, nullable: false,

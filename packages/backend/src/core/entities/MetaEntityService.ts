@@ -70,6 +70,9 @@ export class MetaEntityService {
 			maintainerEmail: instance.maintainerEmail,
 
 			version: this.config.version,
+			buildId: this.config.buildId,
+			sourceRevision: this.config.sourceRevision,
+			bubbleTimelineAvailable: instance.bubbleInstances.length > 0,
 			providesTarball: this.config.publishTarballInsteadOfProvideRepositoryUrl,
 
 			name: instance.name,
@@ -175,4 +178,3 @@ export class MetaEntityService {
 		return packDetailed;
 	}
 }
-

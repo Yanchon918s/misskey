@@ -147,6 +147,20 @@ SPDX-License-Identifier: AGPL-3.0-only
 						</div>
 					</MkFolder>
 				</SearchMarker>
+
+				<SearchMarker :keywords="['bubble', 'timeline', 'servers', 'hosts']">
+					<MkFolder>
+						<template #icon><SearchIcon><i class="ti ti-bubble"></i></SearchIcon></template>
+						<template #label><SearchLabel>{{ i18n.ts.bubbleTimeline }}</SearchLabel></template>
+
+						<div class="_gaps">
+							<MkTextarea v-model="bubbleInstances">
+								<template #caption>{{ i18n.ts.bubbleTimelineDescription }}</template>
+							</MkTextarea>
+							<MkButton primary @click="save_bubbleInstances">{{ i18n.ts.save }}</MkButton>
+						</div>
+					</MkFolder>
+				</SearchMarker>
 			</div>
 		</SearchMarker>
 	</div>
@@ -194,6 +208,7 @@ const preservedUsernames = ref(meta.preservedUsernames.join('\n'));
 const blockedHosts = ref(meta.blockedHosts.join('\n'));
 const silencedHosts = ref(meta.silencedHosts?.join('\n') ?? '');
 const mediaSilencedHosts = ref(meta.mediaSilencedHosts.join('\n'));
+const bubbleInstances = ref(meta.bubbleInstances.join('\n'));
 
 async function onChange_enableRegistration(value: boolean) {
 	if (value) {
@@ -288,6 +303,14 @@ function save_silencedHosts() {
 function save_mediaSilencedHosts() {
 	os.apiWithDialog('admin/update-meta', {
 		mediaSilencedHosts: mediaSilencedHosts.value.split('\n') || [],
+	}).then(() => {
+		fetchInstance(true);
+	});
+}
+
+function save_bubbleInstances() {
+	os.apiWithDialog('admin/update-meta', {
+		bubbleInstances: bubbleInstances.value.split('\n'),
 	}).then(() => {
 		fetchInstance(true);
 	});
