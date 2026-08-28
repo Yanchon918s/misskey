@@ -54,6 +54,42 @@ export async function lookup(router?: Router) {
 	}
 }
 
+export async function lookupNote(router?: Router) {
+	const _router = router ?? mainRouter;
+	const { canceled, result } = await os.inputText({
+		title: i18n.ts.fetchRemoteNote,
+		text: i18n.ts.fetchRemoteNoteDescription,
+		type: 'url',
+		placeholder: 'https://example.com/@user/1234567890',
+	});
+	const query = result?.trim();
+	if (canceled || !query) return;
+
+	if (!query.startsWith('https://')) {
+		await os.alert({
+			type: 'error',
+			title: i18n.ts._remoteLookupErrors._uriInvalid.title,
+			text: i18n.ts._remoteLookupErrors._uriInvalid.description,
+		});
+		return;
+	}
+
+	const res = await apLookup(query);
+	if (res.type !== 'Note') {
+		await os.alert({
+			type: 'error',
+			text: i18n.ts.remoteNoteUrlRequired,
+		});
+		return;
+	}
+
+	_router.push('/notes/:noteId/:initialTab?', {
+		params: {
+			noteId: res.object.id,
+		},
+	});
+}
+
 export async function apLookup(query: string) {
 	const promise = misskeyApi('ap/show', {
 		uri: query,
