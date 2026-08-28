@@ -42,7 +42,7 @@ import { removeColumn, updateColumn } from '@/deck.js';
 import MkStreamingNotesTimeline from '@/components/MkStreamingNotesTimeline.vue';
 import * as os from '@/os.js';
 import { i18n } from '@/i18n.js';
-import { hasWithReplies, isAvailableBasicTimeline, basicTimelineIconClass } from '@/timelines.js';
+import { availableBasicTimelines, hasWithReplies, isAvailableBasicTimeline, basicTimelineIconClass } from '@/timelines.js';
 import { soundSettingsButton } from '@/ui/deck/tl-note-notification.js';
 
 const props = defineProps<{
@@ -95,15 +95,10 @@ onMounted(() => {
 async function setType() {
 	const { canceled, result: src } = await os.select({
 		title: i18n.ts.timeline,
-		items: [{
-			value: 'home', label: i18n.ts._timelines.home,
-		}, {
-			value: 'local', label: i18n.ts._timelines.local,
-		}, {
-			value: 'social', label: i18n.ts._timelines.social,
-		}, {
-			value: 'global', label: i18n.ts._timelines.global,
-		}],
+		items: availableBasicTimelines().map(timelineType => ({
+			value: timelineType,
+			label: i18n.ts._timelines[timelineType],
+		})),
 		default: props.column.tl,
 	});
 	if (canceled) {

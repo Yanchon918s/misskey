@@ -86,6 +86,11 @@ export class MiMeta {
 	@Column('varchar', {
 		length: 1024, array: true, default: '{}',
 	})
+	public bubbleInstances: string[];
+
+	@Column('varchar', {
+		length: 1024, array: true, default: '{}',
+	})
 	public sensitiveWords: string[];
 
 	@Column('varchar', {

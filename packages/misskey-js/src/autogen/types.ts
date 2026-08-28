@@ -1969,6 +1969,15 @@ export type paths = {
          */
         post: operations['federation___instances'];
     };
+    '/federation/remote-software': {
+        /**
+         * federation/remote-software
+         * @description No description provided.
+         *
+         *     **Credential required**: *No*
+         */
+        post: operations['federation___remote-software'];
+    };
     '/federation/show-instance': {
         /**
          * federation/show-instance
@@ -3001,6 +3010,15 @@ export type paths = {
          *     **Credential required**: *No*
          */
         post: operations['notes'];
+    };
+    '/notes/bubble-timeline': {
+        /**
+         * notes/bubble-timeline
+         * @description No description provided.
+         *
+         *     **Credential required**: *No*
+         */
+        post: operations['notes___bubble-timeline'];
     };
     '/notes/children': {
         /**
@@ -5355,6 +5373,7 @@ export type components = {
         RolePolicies: {
             gtlAvailable: boolean;
             ltlAvailable: boolean;
+            btlAvailable: boolean;
             canPublicNote: boolean;
             mentionLimit: number;
             canInvite: boolean;
@@ -5470,6 +5489,9 @@ export type components = {
             maintainerName: string | null;
             maintainerEmail: string | null;
             version: string;
+            buildId: string;
+            sourceRevision: string | null;
+            bubbleTimelineAvailable: boolean;
             providesTarball: boolean;
             name: string | null;
             shortName: string | null;
@@ -9461,6 +9483,7 @@ export interface operations {
                         pinnedUsers: string[];
                         hiddenTags: string[];
                         blockedHosts: string[];
+                        bubbleInstances: string[];
                         sensitiveWords: string[];
                         prohibitedWords: string[];
                         prohibitedWordsForNameOfUser: string[];
@@ -12955,6 +12978,7 @@ export interface operations {
                     pinnedUsers?: string[] | null;
                     hiddenTags?: string[] | null;
                     blockedHosts?: string[] | null;
+                    bubbleInstances?: string[] | null;
                     sensitiveWords?: string[] | null;
                     prohibitedWords?: string[] | null;
                     prohibitedWordsForNameOfUser?: string[] | null;
@@ -21421,6 +21445,67 @@ export interface operations {
             };
         };
     };
+    'federation___remote-software': {
+        responses: {
+            /** @description OK (with results) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': {
+                        softwareName: string;
+                        count: number;
+                    }[];
+                };
+            };
+            /** @description Client error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description Authentication error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description Forbidden error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description I'm Ai */
+            418: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+        };
+    };
     'federation___show-instance': {
         requestBody: {
             content: {
@@ -29297,6 +29382,82 @@ export interface operations {
                     renote?: boolean;
                     withFiles?: boolean;
                     poll?: boolean;
+                    /** @default 10 */
+                    limit?: number;
+                    /** Format: misskey:id */
+                    sinceId?: string;
+                    /** Format: misskey:id */
+                    untilId?: string;
+                    sinceDate?: number;
+                    untilDate?: number;
+                };
+            };
+        };
+        responses: {
+            /** @description OK (with results) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Note'][];
+                };
+            };
+            /** @description Client error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description Authentication error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description Forbidden error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description I'm Ai */
+            418: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+        };
+    };
+    'notes___bubble-timeline': {
+        requestBody: {
+            content: {
+                'application/json': {
+                    /** @default false */
+                    withFiles?: boolean;
+                    /** @default true */
+                    withRenotes?: boolean;
                     /** @default 10 */
                     limit?: number;
                     /** Format: misskey:id */

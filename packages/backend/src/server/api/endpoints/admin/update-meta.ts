@@ -37,6 +37,11 @@ export const paramDef = {
 				type: 'string',
 			},
 		},
+		bubbleInstances: {
+			type: 'array', nullable: true, items: {
+				type: 'string',
+			},
+		},
 		sensitiveWords: {
 			type: 'array', nullable: true, items: {
 				type: 'string',
@@ -258,6 +263,12 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 
 			if (Array.isArray(ps.blockedHosts)) {
 				set.blockedHosts = ps.blockedHosts.filter(Boolean).map(x => x.toLowerCase());
+			}
+
+			if (Array.isArray(ps.bubbleInstances)) {
+				set.bubbleInstances = [...new Set(ps.bubbleInstances
+					.map(host => host.trim().toLowerCase())
+					.filter(Boolean))];
 			}
 
 			if (Array.isArray(ps.sensitiveWords)) {

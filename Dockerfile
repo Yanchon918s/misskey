@@ -6,6 +6,11 @@ ARG NODE_VERSION=26.4.0-trixie
 
 FROM --platform=$BUILDPLATFORM node:${NODE_VERSION} AS native-builder
 
+ARG MISSKEY_BUILD_ID
+ARG MISSKEY_SOURCE_REVISION
+ENV MISSKEY_BUILD_ID=${MISSKEY_BUILD_ID}
+ENV MISSKEY_SOURCE_REVISION=${MISSKEY_SOURCE_REVISION}
+
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	--mount=type=cache,target=/var/lib/apt,sharing=locked \
 	rm -f /etc/apt/apt.conf.d/docker-clean \
@@ -73,8 +78,12 @@ FROM --platform=$TARGETPLATFORM node:${NODE_VERSION}-slim AS runner
 
 ARG UID="991"
 ARG GID="991"
+ARG MISSKEY_BUILD_ID
+ARG MISSKEY_SOURCE_REVISION
 
 ENV PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false
+ENV MISSKEY_BUILD_ID=${MISSKEY_BUILD_ID}
+ENV MISSKEY_SOURCE_REVISION=${MISSKEY_SOURCE_REVISION}
 
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends \

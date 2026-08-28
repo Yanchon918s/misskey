@@ -168,6 +168,13 @@ export const meta = {
 					type: 'string',
 				},
 			},
+			bubbleInstances: {
+				type: 'array',
+				optional: false, nullable: false,
+				items: {
+					type: 'string',
+				},
+			},
 			sensitiveWords: {
 				type: 'array',
 				optional: false, nullable: false,
@@ -696,6 +703,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				pinnedUsers: instance.pinnedUsers,
 				hiddenTags: instance.hiddenTags,
 				blockedHosts: instance.blockedHosts,
+				bubbleInstances: instance.bubbleInstances,
 				silencedHosts: instance.silencedHosts,
 				mediaSilencedHosts: instance.mediaSilencedHosts,
 				sensitiveWords: instance.sensitiveWords,

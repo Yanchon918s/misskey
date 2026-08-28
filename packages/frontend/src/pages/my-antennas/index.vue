@@ -28,7 +28,7 @@ import { i18n } from '@/i18n.js';
 import { definePage } from '@/page.js';
 import { antennasCache } from '@/cache.js';
 
-const antennas = computed(() => antennasCache.value.value ?? []);
+const antennas = computed(() => [...(antennasCache.value.value ?? [])].sort((a, b) => a.name.localeCompare(b.name)));
 
 function _fetch_() {
 	antennasCache.fetch();

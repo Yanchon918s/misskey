@@ -8,6 +8,8 @@ type FIXME = any;
 
 declare const _LANGS_: string[][];
 declare const _VERSION_: string;
+declare const _BUILD_ID_: string;
+declare const _SOURCE_REVISION_: string | null;
 declare const _ENV_: string;
 declare const _DEV_: boolean;
 declare const _PERF_PREFIX_: string;

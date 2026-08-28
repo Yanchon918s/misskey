@@ -147,6 +147,23 @@ if (props.src === 'antenna') {
 		})),
 		useShallowRef: true,
 	}));
+} else if (props.src === 'bubble') {
+	paginator = markRaw(new Paginator('notes/bubble-timeline', {
+		computedParams: computed(() => ({
+			withRenotes: props.withRenotes,
+			withFiles: props.onlyFiles ? true : undefined,
+		})),
+		useShallowRef: true,
+	}));
+} else if (props.src === 'media') {
+	paginator = markRaw(new Paginator('notes/hybrid-timeline', {
+		computedParams: computed(() => ({
+			withRenotes: props.withRenotes,
+			withReplies: false,
+			withFiles: true,
+		})),
+		useShallowRef: true,
+	}));
 } else if (props.src === 'mentions') {
 	paginator = markRaw(new Paginator('notes/mentions', {
 		useShallowRef: true,
@@ -312,6 +329,7 @@ const connections = {
 	localTimeline: null as Misskey.IChannelConnection<Misskey.Channels['localTimeline']> | null,
 	hybridTimeline: null as Misskey.IChannelConnection<Misskey.Channels['hybridTimeline']> | null,
 	globalTimeline: null as Misskey.IChannelConnection<Misskey.Channels['globalTimeline']> | null,
+	bubbleTimeline: null as Misskey.IChannelConnection<Misskey.Channels['bubbleTimeline']> | null,
 	main: null as Misskey.IChannelConnection<Misskey.Channels['main']> | null,
 	userList: null as Misskey.IChannelConnection<Misskey.Channels['userList']> | null,
 	channel: null as Misskey.IChannelConnection<Misskey.Channels['channel']> | null,
@@ -353,6 +371,19 @@ function connectChannel() {
 			withFiles: props.onlyFiles ? true : undefined,
 		});
 		connections.globalTimeline.on('note', prepend);
+	} else if (props.src === 'bubble') {
+		connections.bubbleTimeline = stream.useChannel('bubbleTimeline', {
+			withRenotes: props.withRenotes,
+			withFiles: props.onlyFiles ? true : undefined,
+		});
+		connections.bubbleTimeline.on('note', prepend);
+	} else if (props.src === 'media') {
+		connections.hybridTimeline = stream.useChannel('hybridTimeline', {
+			withRenotes: props.withRenotes,
+			withReplies: false,
+			withFiles: true,
+		});
+		connections.hybridTimeline.on('note', prepend);
 	} else if (props.src === 'mentions') {
 		connections.main = stream.useChannel('main');
 		connections.main.on('mention', prepend);

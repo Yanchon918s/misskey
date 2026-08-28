@@ -13,6 +13,8 @@ import { Features } from 'lightningcss';
 
 const url = process.env.NODE_ENV === 'development' ? (loadYaml(await fsp.readFile('../../.config/default.yml', 'utf-8')) as any).url : null;
 const host = url ? (new URL(url)).hostname : undefined;
+const sourceRevision = process.env.MISSKEY_SOURCE_REVISION?.trim() || null;
+const buildId = process.env.MISSKEY_BUILD_ID?.trim() || (sourceRevision == null ? 'Misskey-Y-dev' : `Misskey-Y-2026-${sourceRevision.slice(0, 12)}`);
 
 const extensions = ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.json', '.json5', '.svg', '.sass', '.scss', '.css', '.vue'];
 
@@ -122,6 +124,8 @@ export function getConfig(): UserConfig {
 
 		define: {
 			_VERSION_: JSON.stringify(meta.version),
+			_BUILD_ID_: JSON.stringify(buildId),
+			_SOURCE_REVISION_: JSON.stringify(sourceRevision),
 			_LANGS_: JSON.stringify(Object.entries(locales).map(([k, v]) => [k, v._lang_])),
 			_ENV_: JSON.stringify(process.env.NODE_ENV),
 			_DEV_: process.env.NODE_ENV !== 'production',

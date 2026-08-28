@@ -194,6 +194,8 @@ export type Config = {
 	}
 
 	version: string;
+	buildId: string;
+	sourceRevision: string | null;
 	publishTarballInsteadOfProvideRepositoryUrl: boolean;
 	setupPassword: string | undefined;
 	host: string;
@@ -270,6 +272,8 @@ export function loadConfig(): Config {
 
 	const url = tryCreateUrl(config.url ?? process.env.MISSKEY_URL ?? '');
 	const version = meta.version;
+	const sourceRevision = process.env.MISSKEY_SOURCE_REVISION?.trim() || null;
+	const buildId = process.env.MISSKEY_BUILD_ID?.trim() || (sourceRevision == null ? 'Misskey-Y-dev' : `Misskey-Y-2026-${sourceRevision.slice(0, 12)}`);
 	const host = url.host;
 	const hostname = url.hostname;
 	const scheme = url.protocol.replace(/:$/, '');
@@ -287,6 +291,8 @@ export function loadConfig(): Config {
 
 	return {
 		version,
+		buildId,
+		sourceRevision,
 		publishTarballInsteadOfProvideRepositoryUrl: !!config.publishTarballInsteadOfProvideRepositoryUrl,
 		setupPassword: config.setupPassword,
 		url: url.origin,

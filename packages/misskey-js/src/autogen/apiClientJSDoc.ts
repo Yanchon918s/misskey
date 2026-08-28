@@ -2406,6 +2406,17 @@ declare module '../api.js' {
 
     /**
      * No description provided.
+     *
+     * **Credential required**: *No*
+     */
+    request<E extends 'federation/remote-software', P extends Endpoints[E]['req']>(
+      endpoint: E,
+      params: P,
+      credential?: string | null,
+    ): Promise<SwitchCaseResponseType<E, P>>;
+
+    /**
+     * No description provided.
      * 
      * **Credential required**: *No*
      */
@@ -3654,6 +3665,17 @@ declare module '../api.js' {
      * **Credential required**: *No*
      */
     request<E extends 'notes', P extends Endpoints[E]['req']>(
+      endpoint: E,
+      params: P,
+      credential?: string | null,
+    ): Promise<SwitchCaseResponseType<E, P>>;
+
+    /**
+     * No description provided.
+     *
+     * **Credential required**: *No*
+     */
+    request<E extends 'notes/bubble-timeline', P extends Endpoints[E]['req']>(
       endpoint: E,
       params: P,
       credential?: string | null,

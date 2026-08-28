@@ -38,7 +38,7 @@ import { ensureSignin } from '@/i.js';
 
 const $i = ensureSignin();
 
-const items = computed(() => userListsCache.value.value ?? []);
+const items = computed(() => [...(userListsCache.value.value ?? [])].sort((a, b) => a.name.localeCompare(b.name)));
 
 function _fetch_() {
 	userListsCache.fetch();
