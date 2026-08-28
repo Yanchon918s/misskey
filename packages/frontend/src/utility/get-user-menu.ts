@@ -20,6 +20,7 @@ import { mainRouter } from '@/router.js';
 import { genEmbedCode } from '@/utility/get-embed-code.js';
 import { prefer } from '@/preferences.js';
 import { getPluginHandlers } from '@/plugin.js';
+import { lookupNote } from '@/utility/lookup.js';
 
 export function getUserMenu(user: Misskey.entities.UserDetailed, router: Router = mainRouter) {
 	const meId = $i ? $i.id : null;
@@ -428,7 +429,16 @@ export function getUserMenu(user: Misskey.entities.UserDetailed, router: Router 
 	}
 
 	if (user.host !== null) {
-		menuItems.push({ type: 'divider' }, {
+		menuItems.push({ type: 'divider' });
+		if ($i) {
+			menuItems.push({
+				icon: 'ti ti-cloud-download',
+				text: i18n.ts.fetchRemoteNote,
+				caption: i18n.ts.fetchRemoteNoteDescription,
+				action: () => lookupNote(router),
+			});
+		}
+		menuItems.push({
 			icon: 'ti ti-refresh',
 			text: i18n.ts.updateRemoteUser,
 			action: userInfoUpdate,

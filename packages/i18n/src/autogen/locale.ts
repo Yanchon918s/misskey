@@ -2489,6 +2489,18 @@ export interface Locale extends ILocale {
      */
     "updateRemoteUser": string;
     /**
+     * 投稿URLから取得
+     */
+    "fetchRemoteNote": string;
+    /**
+     * 過去の投稿を含め、指定した投稿1件だけをこのサーバーに取り込みます。取得後は投稿メニューからクリップに追加できます。
+     */
+    "fetchRemoteNoteDescription": string;
+    /**
+     * リモート投稿のURLを入力してください。
+     */
+    "remoteNoteUrlRequired": string;
+    /**
      * 二要素認証を解除
      */
     "unsetMfa": string;
