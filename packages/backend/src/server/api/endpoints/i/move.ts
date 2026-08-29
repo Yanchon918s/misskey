@@ -17,6 +17,7 @@ import { ApiLoggerService } from '@/server/api/ApiLoggerService.js';
 import { GetterService } from '@/server/api/GetterService.js';
 import { ApPersonService } from '@/core/activitypub/models/ApPersonService.js';
 import { UserEntityService } from '@/core/entities/UserEntityService.js';
+import { RoleService } from '@/core/RoleService.js';
 
 import * as Acct from '@/misc/acct.js';
 import { DI } from '@/di-symbols.js';
@@ -65,6 +66,11 @@ export const meta = {
 			code: 'ALREADY_MOVED',
 			id: 'b234a14e-9ebe-4581-8000-074b3c215962',
 		},
+		federationNotAllowed: {
+			message: 'Federation is not allowed for this user.',
+			code: 'FEDERATION_NOT_ALLOWED',
+			id: '67c80fa9-3547-405b-a5af-3c8257b6a98e',
+		},
 	},
 
 	res: {
@@ -92,8 +98,13 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 		private getterService: GetterService,
 		private apPersonService: ApPersonService,
 		private userEntityService: UserEntityService,
+		private roleService: RoleService,
 	) {
 		super(meta, paramDef, async (ps, me) => {
+			if (!(await this.roleService.getUserPolicies(me.id)).canFederate) {
+				throw new ApiError(meta.errors.federationNotAllowed);
+			}
+
 			// check parameter
 			if (!ps.moveToAccount) throw new ApiError(meta.errors.noSuchUser);
 			// abort if user is the root

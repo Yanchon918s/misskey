@@ -27,6 +27,7 @@ import { CacheService } from '@/core/CacheService.js';
 import type { Config } from '@/config.js';
 import { AccountMoveService } from '@/core/AccountMoveService.js';
 import { UtilityService } from '@/core/UtilityService.js';
+import { FEDERATION_NOT_ALLOWED_ERROR_ID, RoleService } from '@/core/RoleService.js';
 import type { ThinUser } from '@/queue/types.js';
 import Logger from '../logger.js';
 
@@ -75,6 +76,7 @@ export class UserFollowingService implements OnModuleInit {
 
 		private cacheService: CacheService,
 		private utilityService: UtilityService,
+		private roleService: RoleService,
 		private userEntityService: UserEntityService,
 		private idService: IdService,
 		private queueService: QueueService,
@@ -120,6 +122,18 @@ export class UserFollowingService implements OnModuleInit {
 		if (this.userEntityService.isRemoteUser(follower) && this.userEntityService.isRemoteUser(followee)) {
 			// What?
 			throw new Error('Remote user cannot follow remote user.');
+		}
+
+		if (this.userEntityService.isLocalUser(follower) && this.userEntityService.isRemoteUser(followee)) {
+			if (!(await this.roleService.getUserPolicies(follower.id)).canFederate) {
+				throw new IdentifiableError(FEDERATION_NOT_ALLOWED_ERROR_ID, 'Federation is not allowed for this user.');
+			}
+		} else if (this.userEntityService.isRemoteUser(follower) && this.userEntityService.isLocalUser(followee)) {
+			if (!(await this.roleService.getUserPolicies(followee.id)).canFederate) {
+				const content = this.apRendererService.addContext(this.apRendererService.renderReject(this.apRendererService.renderFollow(follower, followee, requestId), followee));
+				this.queueService.deliver(followee, content, follower.inbox, false);
+				return;
+			}
 		}
 
 		// check blocking
@@ -595,6 +609,19 @@ export class UserFollowingService implements OnModuleInit {
 			throw new IdentifiableError('8884c2dd-5795-4ac9-b27e-6a01d38190f9', 'No follow request.');
 		}
 
+		if (this.userEntityService.isRemoteUser(follower) && this.userEntityService.isLocalUser(followee)) {
+			if (!(await this.roleService.getUserPolicies(followee.id)).canFederate) {
+				await this.deliverReject(followee as Local, follower);
+				await this.removeFollowRequest(followee, follower);
+				return;
+			}
+		} else if (this.userEntityService.isLocalUser(follower) && this.userEntityService.isRemoteUser(followee)) {
+			if (!(await this.roleService.getUserPolicies(follower.id)).canFederate) {
+				await this.removeFollowRequest(followee, follower);
+				return;
+			}
+		}
+
 		await this.insertFollowingDoc(followee, follower, false, request.withReplies);
 
 		if (this.userEntityService.isRemoteUser(follower) && this.userEntityService.isLocalUser(followee)) {
@@ -668,7 +695,7 @@ export class UserFollowingService implements OnModuleInit {
 	 * Remove follow request record
 	 */
 	@bindThis
-	private async removeFollowRequest(followee: Both, follower: Both): Promise<void> {
+	private async removeFollowRequest(followee: { id: MiUser['id'] }, follower: { id: MiUser['id'] }): Promise<void> {
 		const request = await this.followRequestsRepository.findOneBy({
 			followeeId: followee.id,
 			followerId: follower.id,

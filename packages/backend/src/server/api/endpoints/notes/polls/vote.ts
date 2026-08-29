@@ -15,6 +15,7 @@ import { ApRendererService } from '@/core/activitypub/ApRendererService.js';
 import { GlobalEventService } from '@/core/GlobalEventService.js';
 import { DI } from '@/di-symbols.js';
 import { UserBlockingService } from '@/core/UserBlockingService.js';
+import { RoleService } from '@/core/RoleService.js';
 import { ApiError } from '../../../error.js';
 
 export const meta = {
@@ -62,6 +63,12 @@ export const meta = {
 			code: 'YOU_HAVE_BEEN_BLOCKED',
 			id: '85a5377e-b1e9-4617-b0b9-5bea73331e49',
 		},
+
+		federationNotAllowed: {
+			message: 'Federation is not allowed for this user.',
+			code: 'FEDERATION_NOT_ALLOWED',
+			id: 'cf75b42e-62cc-4a25-a1d7-a318549df1e0',
+		},
 	},
 } as const;
 
@@ -95,6 +102,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 		private apRendererService: ApRendererService,
 		private globalEventService: GlobalEventService,
 		private userBlockingService: UserBlockingService,
+		private roleService: RoleService,
 	) {
 		super(meta, paramDef, async (ps, me) => {
 			const createdAt = new Date();
@@ -107,6 +115,10 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 
 			if (!note.hasPoll) {
 				throw new ApiError(meta.errors.noPoll);
+			}
+
+			if (note.userHost != null && !(await this.roleService.getUserPolicies(me.id)).canFederate) {
+				throw new ApiError(meta.errors.federationNotAllowed);
 			}
 
 			// Check blocking

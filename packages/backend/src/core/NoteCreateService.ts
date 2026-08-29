@@ -468,6 +468,9 @@ export class NoteCreateService implements OnApplicationShutdown {
 		if (data.channel != null) data.visibility = 'public';
 		if (data.channel != null) data.visibleUsers = [];
 		if (data.channel != null) data.localOnly = true;
+		if (this.userEntityService.isLocalUser(user) && !(await this.roleService.getUserPolicies(user.id)).canFederate) {
+			data.localOnly = true;
+		}
 
 		if (data.visibility === 'public' && data.channel == null) {
 			const sensitiveWords = this.meta.sensitiveWords;

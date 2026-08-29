@@ -8270,6 +8270,10 @@ export interface Locale extends ILocale {
              */
             "canSearchUsers": string;
             /**
+             * 連合への送信
+             */
+            "canFederate": string;
+            /**
              * 翻訳機能の利用
              */
             "canUseTranslator": string;

@@ -443,6 +443,9 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 			}
 
 			if (ps.alsoKnownAs) {
+				policies ??= await this.roleService.getUserPolicies(user.id);
+				if (!policies.canFederate) throw new ApiError(meta.errors.restrictedByRole);
+
 				if (_user.movedToUri) {
 					throw new ApiError({
 						message: 'You have moved your account.',

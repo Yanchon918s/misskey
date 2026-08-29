@@ -220,6 +220,10 @@ export const packedRolePoliciesSchema = {
 			type: 'boolean',
 			optional: false, nullable: false,
 		},
+		canFederate: {
+			type: 'boolean',
+			optional: false, nullable: false,
+		},
 		canUseTranslator: {
 			type: 'boolean',
 			optional: false, nullable: false,

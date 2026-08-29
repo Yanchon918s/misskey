@@ -32,6 +32,8 @@ import { FanoutTimelineService } from '@/core/FanoutTimelineService.js';
 import { NotificationService } from '@/core/NotificationService.js';
 import type { OnApplicationShutdown, OnModuleInit } from '@nestjs/common';
 
+export const FEDERATION_NOT_ALLOWED_ERROR_ID = 'c5359b4d-a3bc-4d44-8fed-859c3286c88a';
+
 // misskey-js の rolePolicies と同期すべし
 export type RolePolicies = {
 	gtlAvailable: boolean;
@@ -47,6 +49,7 @@ export type RolePolicies = {
 	canManageAvatarDecorations: boolean;
 	canSearchNotes: boolean;
 	canSearchUsers: boolean;
+	canFederate: boolean;
 	canUseTranslator: boolean;
 	canHideAds: boolean;
 	canCreateChannel: boolean;
@@ -90,6 +93,7 @@ export const DEFAULT_POLICIES: RolePolicies = {
 	canManageAvatarDecorations: false,
 	canSearchNotes: false,
 	canSearchUsers: true,
+	canFederate: true,
 	canUseTranslator: true,
 	canHideAds: false,
 	canCreateChannel: true,
@@ -419,6 +423,8 @@ export class RoleService implements OnApplicationShutdown, OnModuleInit {
 			canManageAvatarDecorations: calc('canManageAvatarDecorations', vs => vs.some(v => v === true)),
 			canSearchNotes: calc('canSearchNotes', vs => vs.some(v => v === true)),
 			canSearchUsers: calc('canSearchUsers', vs => vs.some(v => v === true)),
+			// 同じ優先度では、禁止ロールが一つでもあれば連合への送信を禁止する。
+			canFederate: calc('canFederate', vs => vs.every(v => v === true)),
 			canUseTranslator: calc('canUseTranslator', vs => vs.some(v => v === true)),
 			canHideAds: calc('canHideAds', vs => vs.some(v => v === true)),
 			canCreateChannel: calc('canCreateChannel', vs => vs.some(v => v === true)),

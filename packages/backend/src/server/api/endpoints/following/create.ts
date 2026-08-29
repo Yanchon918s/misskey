@@ -10,6 +10,7 @@ import type { FollowingsRepository } from '@/models/_.js';
 import { IdentifiableError } from '@/misc/identifiable-error.js';
 import { UserEntityService } from '@/core/entities/UserEntityService.js';
 import { UserFollowingService } from '@/core/UserFollowingService.js';
+import { FEDERATION_NOT_ALLOWED_ERROR_ID } from '@/core/RoleService.js';
 import { DI } from '@/di-symbols.js';
 import { GetterService } from '@/server/api/GetterService.js';
 import { ApiError } from '../../error.js';
@@ -57,6 +58,12 @@ export const meta = {
 			message: 'You are blocked by that user.',
 			code: 'BLOCKED',
 			id: 'c4ab57cc-4e41-45e9-bfd9-584f61e35ce0',
+		},
+
+		federationNotAllowed: {
+			message: 'Federation is not allowed for this user.',
+			code: 'FEDERATION_NOT_ALLOWED',
+			id: 'b18cddc3-4e8c-4c9d-9d33-cfda1e1bd0c8',
 		},
 	},
 
@@ -107,6 +114,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 					if (e.id === 'ec3f65c0-a9d1-47d9-8791-b2e7b9dcdced') throw new ApiError(meta.errors.alreadyFollowing);
 					if (e.id === '710e8fb0-b8c3-4922-be49-d5d93d8e6a6e') throw new ApiError(meta.errors.blocking);
 					if (e.id === '3338392a-f764-498d-8855-db939dcf8c48') throw new ApiError(meta.errors.blocked);
+					if (e.id === FEDERATION_NOT_ALLOWED_ERROR_ID) throw new ApiError(meta.errors.federationNotAllowed);
 				}
 				throw e;
 			}

@@ -7,6 +7,7 @@ import { Injectable } from '@nestjs/common';
 import { Endpoint } from '@/server/api/endpoint-base.js';
 import { GetterService } from '@/server/api/GetterService.js';
 import { ReactionService } from '@/core/ReactionService.js';
+import { FEDERATION_NOT_ALLOWED_ERROR_ID } from '@/core/RoleService.js';
 import { ApiError } from '../../../error.js';
 
 export const meta = {
@@ -42,6 +43,12 @@ export const meta = {
 			code: 'CANNOT_REACT_TO_RENOTE',
 			id: 'eaccdc08-ddef-43fe-908f-d108faad57f5',
 		},
+
+		federationNotAllowed: {
+			message: 'Federation is not allowed for this user.',
+			code: 'FEDERATION_NOT_ALLOWED',
+			id: 'ac4b2b6d-cf7a-49d5-a636-83d2235bc85e',
+		},
 	},
 } as const;
 
@@ -69,6 +76,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				if (err.id === '51c42bb4-931a-456b-bff7-e5a8a70dd298') throw new ApiError(meta.errors.alreadyReacted);
 				if (err.id === 'e70412a4-7197-4726-8e74-f3e0deb92aa7') throw new ApiError(meta.errors.youHaveBeenBlocked);
 				if (err.id === '12c35529-3c79-4327-b1cc-e2cf63a71925') throw new ApiError(meta.errors.cannotReactToRenote);
+				if (err.id === FEDERATION_NOT_ALLOWED_ERROR_ID) throw new ApiError(meta.errors.federationNotAllowed);
 				throw err;
 			});
 			return;

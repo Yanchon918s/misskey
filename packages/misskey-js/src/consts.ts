@@ -206,6 +206,7 @@ export const rolePolicies = [
 	'canManageAvatarDecorations',
 	'canSearchNotes',
 	'canSearchUsers',
+	'canFederate',
 	'canUseTranslator',
 	'canHideAds',
 	'canCreateChannel',
