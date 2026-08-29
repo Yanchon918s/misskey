@@ -6,10 +6,10 @@ SPDX-License-Identifier: AGPL-3.0-only
 <template>
 <button
 	ref="buttonEl"
-	v-ripple="canToggle"
+	v-ripple="canInteract"
 	class="_button"
-	:class="[$style.root, { [$style.reacted]: myReaction == reaction, [$style.canToggle]: canToggle, [$style.small]: prefer.s.reactionsDisplaySize === 'small', [$style.large]: prefer.s.reactionsDisplaySize === 'large' }]"
-	@click="toggleReaction()"
+	:class="[$style.root, { [$style.reacted]: myReaction == reaction, [$style.canToggle]: canInteract, [$style.small]: prefer.s.reactionsDisplaySize === 'small', [$style.large]: prefer.s.reactionsDisplaySize === 'large' }]"
+	@click="onClick"
 	@contextmenu.prevent.stop="menu"
 >
 	<MkReactionIcon style="pointer-events: none;" :class="prefer.s.limitWidthOfReaction ? $style.limitWidth : ''" :reaction="reaction" :emojiUrl="reactionEmojis[reaction.substring(1, reaction.length - 1)]"/>
@@ -39,6 +39,7 @@ import { DI } from '@/di.js';
 import { noteEvents } from '@/composables/use-note-capture.js';
 import { mute as muteEmoji, unmute as unmuteEmoji, checkMuted as isEmojiMuted } from '@/utility/emoji-mute.js';
 import { haptic } from '@/utility/haptic.js';
+import { parseRemoteCustomEmojiReaction, toLocalCustomEmojiReaction } from '@/utility/remote-reaction.js';
 
 const props = defineProps<{
 	noteId: Misskey.entities.Note['id'];
@@ -58,38 +59,71 @@ const emit = defineEmits<{
 const buttonEl = useTemplateRef('buttonEl');
 
 const emojiName = computed(() => props.reaction.replace(/:/g, '').replace(/@\./, ''));
+const remoteReaction = computed(() => parseRemoteCustomEmojiReaction(props.reaction));
+const localEmojiForRemoteReaction = computed(() => {
+	if (remoteReaction.value == null) return null;
+	return customEmojisMap.get(remoteReaction.value.name) ?? null;
+});
+const targetReaction = computed(() => remoteReaction.value && localEmojiForRemoteReaction.value
+	? toLocalCustomEmojiReaction(remoteReaction.value.name)
+	: props.reaction);
+
+type ReactionEmoji = { name: string; url: string };
+
+function resolveReactionEmoji(reaction: string): ReactionEmoji | undefined {
+	if (!reaction.startsWith(':') || !reaction.endsWith(':')) return undefined;
+
+	const reactionName = reaction.slice(1, -1);
+	const localName = reactionName.replace(/@\.$/, '');
+	const emoji = customEmojisMap.get(localName);
+	return emoji == null ? undefined : { name: reactionName, url: emoji.url };
+}
+
+const targetEmoji = computed<{ name: string; url: string } | undefined>(() => {
+	return resolveReactionEmoji(targetReaction.value);
+});
 
 const canToggle = computed(() => {
 	const emoji = customEmojisMap.get(emojiName.value) ?? getUnicodeEmoji(props.reaction);
 
 	// TODO
 	//return !props.reaction.match(/@\w/) && $i && emoji && checkReactionPermissions($i, props.note, emoji);
-	return !props.reaction.match(/@\w/) && $i && emoji;
+	if ($i == null) return false;
+	if (remoteReaction.value != null) return localEmojiForRemoteReaction.value != null;
+	return emoji != null;
 });
+const canImport = computed(() => !mock && remoteReaction.value != null && localEmojiForRemoteReaction.value == null && $i != null && ($i.isAdmin || $i.policies.canManageCustomEmojis));
+const canInteract = computed(() => canToggle.value || canImport.value);
 const canGetInfo = computed(() => !props.reaction.match(/@\w/) && props.reaction.includes(':'));
 const isLocalCustomEmoji = props.reaction[0] === ':' && props.reaction.includes('@.');
 
-async function toggleReaction() {
-	if (!canToggle.value) return;
-	if ($i == null) return;
+function onClick(ev: MouseEvent) {
+	if (canToggle.value) {
+		void toggleReaction(targetReaction.value, targetEmoji.value);
+	} else if (canImport.value) {
+		showRemoteReactionMenu(ev);
+	}
+}
 
+async function toggleReaction(reaction: string, reactionEmoji: typeof targetEmoji.value) {
 	const me = $i;
+	if (me == null) return;
 
 	const oldReaction = props.myReaction;
 	if (oldReaction) {
 		const confirm = await os.confirm({
 			type: 'warning',
-			text: oldReaction !== props.reaction ? i18n.ts.changeReactionConfirm : i18n.ts.cancelReactionConfirm,
+			text: oldReaction !== reaction ? i18n.ts.changeReactionConfirm : i18n.ts.cancelReactionConfirm,
 		});
 		if (confirm.canceled) return;
 
-		if (oldReaction !== props.reaction) {
+		if (oldReaction !== reaction) {
 			sound.playMisskeySfx('reaction');
 			haptic();
 		}
 
 		if (mock) {
-			emit('reactionToggled', props.reaction, (props.count - 1));
+			emit('reactionToggled', reaction, (props.count - 1));
 			return;
 		}
 
@@ -100,17 +134,17 @@ async function toggleReaction() {
 				userId: me.id,
 				reaction: oldReaction,
 			});
-			if (oldReaction !== props.reaction) {
+			if (oldReaction !== reaction) {
 				misskeyApi('notes/reactions/create', {
 					noteId: props.noteId,
-					reaction: props.reaction,
+					reaction,
 				}).then(() => {
-					const emoji = customEmojisMap.get(emojiName.value);
+					const emoji = resolveReactionEmoji(reaction) ?? reactionEmoji;
 					if (emoji == null) return;
 					noteEvents.emit(`reacted:${props.noteId}`, {
 						userId: me.id,
-						reaction: props.reaction,
-						emoji: emoji,
+						reaction,
+						emoji,
 					});
 				});
 			}
@@ -119,7 +153,7 @@ async function toggleReaction() {
 		if (prefer.s.confirmOnReact) {
 			const confirm = await os.confirm({
 				type: 'question',
-				text: i18n.tsx.reactAreYouSure({ emoji: props.reaction.replace('@.', '') }),
+				text: i18n.tsx.reactAreYouSure({ emoji: reaction.replace('@.', '') }),
 			});
 
 			if (confirm.canceled) return;
@@ -129,21 +163,21 @@ async function toggleReaction() {
 		haptic();
 
 		if (mock) {
-			emit('reactionToggled', props.reaction, (props.count + 1));
+			emit('reactionToggled', reaction, (props.count + 1));
 			return;
 		}
 
 		misskeyApi('notes/reactions/create', {
 			noteId: props.noteId,
-			reaction: props.reaction,
+			reaction,
 		}).then(() => {
-			const emoji = customEmojisMap.get(emojiName.value);
+			const emoji = resolveReactionEmoji(reaction) ?? reactionEmoji;
 			if (emoji == null) return;
 
 			noteEvents.emit(`reacted:${props.noteId}`, {
 				userId: me.id,
-				reaction: props.reaction,
-				emoji: emoji,
+				reaction,
+				emoji,
 			});
 		});
 		// TODO: 上位コンポーネントでやる
@@ -151,6 +185,69 @@ async function toggleReaction() {
 		//	claimAchievement('reactWithoutRead');
 		//}
 	}
+}
+
+async function findRemoteEmoji() {
+	const target = remoteReaction.value;
+	if (target == null) return null;
+
+	let untilId: string | undefined;
+	while (true) {
+		const emojis = await misskeyApi('admin/emoji/list-remote', {
+			host: target.host,
+			query: target.name,
+			limit: 100,
+			...(untilId ? { untilId } : {}),
+		});
+		const exact = emojis.find(item => item.name === target.name);
+		if (exact) return exact;
+		if (emojis.length < 100) return null;
+		untilId = emojis[emojis.length - 1].id;
+	}
+}
+
+async function importRemoteEmoji(reactAfterImport: boolean) {
+	if (!canImport.value || remoteReaction.value == null) return;
+
+	const remoteEmoji = await os.promiseDialog(findRemoteEmoji());
+	if (remoteEmoji == null) {
+		await os.alert({
+			type: 'error',
+			title: i18n.ts.error,
+			text: i18n.ts.notFound,
+		});
+		return;
+	}
+
+	await os.apiWithDialog('admin/emoji/copy', {
+		emojiId: remoteEmoji.id,
+	});
+	if (!reactAfterImport) return;
+
+	const importedEmoji = await misskeyApi('emoji', {
+		name: remoteEmoji.name,
+	});
+	await toggleReaction(toLocalCustomEmojiReaction(importedEmoji.name), {
+		name: `${importedEmoji.name}@.`,
+		url: importedEmoji.url,
+	});
+}
+
+function showRemoteReactionMenu(ev: MouseEvent) {
+	if (!canImport.value || remoteReaction.value == null) return;
+
+	os.popupMenu([{
+		type: 'label',
+		text: `:${remoteReaction.value.name}@${remoteReaction.value.host}:`,
+	}, {
+		text: i18n.ts.import,
+		icon: 'ti ti-plus',
+		action: () => importRemoteEmoji(false),
+	}, {
+		text: `${i18n.ts.doReaction} (${i18n.ts.import})`,
+		icon: 'ti ti-mood-plus',
+		action: () => importRemoteEmoji(true),
+	}], ev.currentTarget ?? ev.target);
 }
 
 async function menu(ev) {
@@ -236,6 +333,7 @@ if (!mock) {
 		});
 
 		const users = reactions.map(x => x.user);
+		if (buttonEl.value == null) return;
 
 		const { dispose } = os.popup(XDetails, {
 			showing,
