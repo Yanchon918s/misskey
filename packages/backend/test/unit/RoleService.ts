@@ -270,6 +270,39 @@ describe('RoleService', () => {
 			expect(result.canManageCustomEmojis).toBe(true);
 		});
 
+		test('federation is enabled by default and an explicit denial wins within the same priority', async () => {
+			const defaultUser = await createUser();
+			const restrictedUser = await createUser();
+			const allowedRole = await createRole({
+				name: 'allowed',
+				policies: {
+					canFederate: {
+						useDefault: true,
+						priority: 2,
+						value: true,
+					},
+				},
+			});
+			const deniedRole = await createRole({
+				name: 'denied',
+				policies: {
+					canFederate: {
+						useDefault: false,
+						priority: 2,
+						value: false,
+					},
+				},
+			});
+			meta.policies = {};
+			expect((await roleService.getUserPolicies(defaultUser.id)).canFederate).toBe(true);
+
+			await roleService.assign(restrictedUser.id, allowedRole.id);
+			await roleService.assign(restrictedUser.id, deniedRole.id);
+			const result = await roleService.getUserPolicies(restrictedUser.id);
+
+			expect(result.canFederate).toBe(false);
+		});
+
 		test('priority', async () => {
 			const user = await createUser();
 			const role1 = await createRole({

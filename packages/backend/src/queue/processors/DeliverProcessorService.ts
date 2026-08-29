@@ -19,6 +19,7 @@ import ApRequestChart from '@/core/chart/charts/ap-request.js';
 import FederationChart from '@/core/chart/charts/federation.js';
 import { StatusError } from '@/misc/status-error.js';
 import { UtilityService } from '@/core/UtilityService.js';
+import { RoleService } from '@/core/RoleService.js';
 import { bindThis } from '@/decorators.js';
 import { QueueLoggerService } from '../QueueLoggerService.js';
 import type { DeliverJobData } from '../types.js';
@@ -37,6 +38,7 @@ export class DeliverProcessorService {
 		private instancesRepository: InstancesRepository,
 
 		private utilityService: UtilityService,
+		private roleService: RoleService,
 		private federatedInstanceService: FederatedInstanceService,
 		private fetchInstanceMetadataService: FetchInstanceMetadataService,
 		private apRequestService: ApRequestService,
@@ -55,6 +57,10 @@ export class DeliverProcessorService {
 
 		if (!this.utilityService.isFederationAllowedUri(job.data.to)) {
 			return 'skip (blocked)';
+		}
+
+		if (!this.isCleanupActivity(job.data.content) && !(await this.roleService.getUserPolicies(job.data.user.id)).canFederate) {
+			return 'skip (federation denied by role)';
 		}
 
 		// isSuspendedなら中断
@@ -159,6 +165,17 @@ export class DeliverProcessorService {
 				// DNS error, socket error, timeout ...
 				throw res;
 			}
+		}
+	}
+
+	@bindThis
+	private isCleanupActivity(content: string): boolean {
+		try {
+			const activity = JSON.parse(content) as { type?: string | string[] };
+			const types = Array.isArray(activity.type) ? activity.type : [activity.type];
+			return types.some(type => type === 'Delete' || type === 'Reject' || type === 'Undo');
+		} catch {
+			return false;
 		}
 	}
 }

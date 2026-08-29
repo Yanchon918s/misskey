@@ -24,7 +24,7 @@ import { bindThis } from '@/decorators.js';
 import { UtilityService } from '@/core/UtilityService.js';
 import { UserBlockingService } from '@/core/UserBlockingService.js';
 import { CustomEmojiService } from '@/core/CustomEmojiService.js';
-import { RoleService } from '@/core/RoleService.js';
+import { FEDERATION_NOT_ALLOWED_ERROR_ID, RoleService } from '@/core/RoleService.js';
 import { FeaturedService } from '@/core/FeaturedService.js';
 import { trackPromise } from '@/misc/promise-tracker.js';
 import { isQuote, isRenote } from '@/misc/is-renote.js';
@@ -104,6 +104,10 @@ export class ReactionService {
 
 	@bindThis
 	public async create(user: { id: MiUser['id']; host: MiUser['host']; isBot: MiUser['isBot'] }, note: MiNote, _reaction?: string | null) {
+		if (this.userEntityService.isLocalUser(user) && note.userHost != null && !(await this.roleService.getUserPolicies(user.id)).canFederate) {
+			throw new IdentifiableError(FEDERATION_NOT_ALLOWED_ERROR_ID, 'Federation is not allowed for this user.');
+		}
+
 		// Check blocking
 		if (note.userId !== user.id) {
 			const blocked = await this.userBlockingService.checkBlocked(note.userId, user.id);

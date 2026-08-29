@@ -2110,6 +2110,7 @@ _role:
     canHideAds: "Can hide ads"
     canSearchNotes: "Usage of note search"
     canSearchUsers: "User search"
+    canFederate: "Can federate"
     canUseTranslator: "Translator usage"
     canCreateChannel: "Allow creating channels"
     avatarDecorationLimit: "Maximum number of avatar decorations"
