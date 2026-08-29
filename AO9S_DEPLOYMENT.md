@@ -2,6 +2,8 @@
 
 この公開forkは、`misskey.ao9s.net`で実行する改変版Misskeyの対応ソースを公開し、GitHub ActionsとGitOpsでK3sへ反映するためのリポジトリである。起点は上流Misskey `2026.7.0`（`8ea4a0ecac058688f69706ab88de1fcd439e2621`）で、ライセンスは上流と同じAGPL-3.0-onlyである。
 
+機能開発から本番反映までのブランチ運用は、[AO9S_BRANCH_STRATEGY.md](./AO9S_BRANCH_STRATEGY.md)に定める。
+
 ## ブランチと権限境界
 
 - `ao9s/production`: 本番へ出すソース。Pull RequestとpushはGitHub-hosted runnerでfull build、上流CI対象のESLint / typecheck / DTS検査を実行する。
