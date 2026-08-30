@@ -14,7 +14,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<img :src="misskeysvg" :class="$style.misskey"/>
 	</div>
 	<div :class="$style.contents">
-		<MkVisitorDashboard/>
+		<MkVisitorDashboard :showTimeline="false"/>
 	</div>
 	<div v-if="instances && instances.length > 0" :class="$style.federation">
 		<MkMarqueeText :duration="40">
