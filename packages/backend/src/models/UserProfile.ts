@@ -174,7 +174,7 @@ export class MiUserProfile {
 	public autoAcceptFollowed: boolean;
 
 	@Column('boolean', {
-		default: false,
+		default: true,
 		comment: 'Whether reject index by crawler.',
 	})
 	public noCrawle: boolean;

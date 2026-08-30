@@ -53,7 +53,7 @@ import { misskeyApi } from '@/utility/misskey-api.js';
 
 const isLocked = ref(false);
 const hideOnlineStatus = ref(false);
-const noCrawle = ref(false);
+const noCrawle = ref(true);
 const preventAiLearning = ref(true);
 
 watch([isLocked, hideOnlineStatus, noCrawle, preventAiLearning], () => {

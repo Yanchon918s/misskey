@@ -364,7 +364,7 @@ describe('ユーザー', () => {
 		assert.strictEqual(response.autoSensitive, false);
 		assert.strictEqual(response.carefulBot, false);
 		assert.strictEqual(response.autoAcceptFollowed, true);
-		assert.strictEqual(response.noCrawle, false);
+		assert.strictEqual(response.noCrawle, true);
 		assert.strictEqual(response.preventAiLearning, true);
 		assert.strictEqual(response.isExplorable, true);
 		assert.strictEqual(response.isDeleted, false);
