@@ -2406,7 +2406,7 @@ declare module '../api.js' {
 
     /**
      * No description provided.
-     *
+     * 
      * **Credential required**: *No*
      */
     request<E extends 'federation/remote-software', P extends Endpoints[E]['req']>(
@@ -3672,7 +3672,7 @@ declare module '../api.js' {
 
     /**
      * No description provided.
-     *
+     * 
      * **Credential required**: *No*
      */
     request<E extends 'notes/bubble-timeline', P extends Endpoints[E]['req']>(

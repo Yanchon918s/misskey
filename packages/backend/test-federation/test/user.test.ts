@@ -1,4 +1,4 @@
-import { describe, test, beforeAll } from 'vitest';
+import { describe, test, beforeAll, vi } from 'vitest';
 import assert, { rejects, strictEqual } from 'node:assert';
 import * as Misskey from 'misskey-js';
 import { createAccount, deepStrictEqualWithExcludedFields, fetchAdmin, type LoginUser, resolveRemoteNote, resolveRemoteUser, sleep } from './utils.js';
@@ -7,6 +7,8 @@ const [aAdmin, bAdmin] = await Promise.all([
 	fetchAdmin('a.test'),
 	fetchAdmin('b.test'),
 ]);
+
+const federationWaitForOptions = { timeout: 5000, interval: 100 };
 
 describe('User', () => {
 	describe('Profile', () => {
@@ -139,13 +141,16 @@ describe('User', () => {
 
 			test('Becoming a cat is sent to their followers', async () => {
 				await bob.client.request('following/create', { userId: aliceInB.id });
-				await sleep();
+				await vi.waitFor(async () => {
+					const followers = await alice.client.request('users/followers', { userId: alice.id });
+					strictEqual(followers.some(v => v.followerId === bobInA.id), true);
+				}, federationWaitForOptions);
 
 				await alice.client.request('i/update', { isCat: true });
-				await sleep();
-
-				const res = await bob.client.request('users/show', { userId: aliceInB.id });
-				strictEqual(res.isCat, true);
+				await vi.waitFor(async () => {
+					const res = await bob.client.request('users/show', { userId: aliceInB.id });
+					strictEqual(res.isCat, true);
+				}, federationWaitForOptions);
 			});
 		});
 
