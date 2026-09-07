@@ -138,12 +138,12 @@ describe('CleanRemoteNotesProcessorService', () => {
 
 	afterEach(async () => {
 		// Clean up test data
-		await Promise.all([
-			notesRepository.createQueryBuilder().delete().execute(),
-			userNotePiningsRepository.createQueryBuilder().delete().execute(),
-			noteFavoritesRepository.createQueryBuilder().delete().execute(),
-			noteReactionsRepository.createQueryBuilder().delete().execute(),
-		]);
+		// These tables are connected by foreign keys. Running the deletes in parallel
+		// can make PostgreSQL lock the tables in different orders and deadlock.
+		await userNotePiningsRepository.createQueryBuilder().delete().execute();
+		await noteFavoritesRepository.createQueryBuilder().delete().execute();
+		await noteReactionsRepository.createQueryBuilder().delete().execute();
+		await notesRepository.createQueryBuilder().delete().execute();
 	}, 60 * 1000);
 
 	afterAll(async () => {
