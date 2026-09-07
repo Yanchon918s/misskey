@@ -263,6 +263,12 @@ export const packedUserDetailedNotMeOnlySchema = {
 			nullable: true, optional: false,
 			example: 'Hi masters, I am Ai!',
 		},
+		statusMessage: {
+			type: 'string', nullable: true, optional: true,
+		},
+		statusExpiresAt: {
+			type: 'string', format: 'date-time', nullable: true, optional: true,
+		},
 		location: {
 			type: 'string',
 			nullable: true, optional: false,

@@ -42,6 +42,15 @@ export class MiUserProfile {
 	})
 	public description: string | null;
 
+	@Column('varchar', { length: 80, nullable: true })
+	public statusMessage: string | null;
+
+	@Column('timestamp with time zone', { nullable: true })
+	public statusExpiresAt: Date | null;
+
+	@Column('timestamp with time zone', { nullable: true })
+	public niwaLastWateredAt: Date | null;
+
 	// フォローされた際のメッセージ
 	@Column('varchar', {
 		length: 256, nullable: true,

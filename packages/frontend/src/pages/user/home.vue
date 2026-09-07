@@ -82,6 +82,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 							></textarea>
 						</div>
 						<div class="description">
+							<MkUserStatus :message="user.statusMessage" :expiresAt="user.statusExpiresAt"/>
 							<MkOmit>
 								<Mfm v-if="user.description" :text="user.description" :isNote="false" :author="user" class="_selectable"/>
 								<p v-else class="empty">{{ i18n.ts.noAccountDescription }}</p>
@@ -176,6 +177,7 @@ import number from '@/filters/number.js';
 import { userPage } from '@/filters/user.js';
 import * as os from '@/os.js';
 import { i18n } from '@/i18n.js';
+import MkUserStatus from '@/components/MkUserStatus.vue';
 import { $i, iAmModerator } from '@/i.js';
 import { dateString } from '@/filters/date.js';
 import { confetti } from '@/utility/confetti.js';

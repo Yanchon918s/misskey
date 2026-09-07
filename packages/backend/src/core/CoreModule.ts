@@ -20,6 +20,7 @@ import { AccountMoveService } from './AccountMoveService.js';
 import { AccountUpdateService } from './AccountUpdateService.js';
 import { AiService } from './AiService.js';
 import { AnnouncementService } from './AnnouncementService.js';
+import { NiwaService } from './NiwaService.js';
 import { AntennaService } from './AntennaService.js';
 import { AchievementService } from './AchievementService.js';
 import { AvatarDecorationService } from './AvatarDecorationService.js';
@@ -312,6 +313,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 		QueueModule,
 	],
 	providers: [
+		NiwaService,
 		LoggerService,
 		AbuseReportService,
 		AbuseReportNotificationService,
@@ -613,6 +615,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 		//#endregion
 	],
 	exports: [
+		NiwaService,
 		QueueModule,
 		LoggerService,
 		AbuseReportService,

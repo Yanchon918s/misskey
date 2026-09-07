@@ -13,6 +13,7 @@ import type { Config } from '@/config.js';
 import type { Packed } from '@/misc/json-schema.js';
 import type { Promiseable } from '@/misc/prelude/await-all.js';
 import { awaitAll } from '@/misc/prelude/await-all.js';
+import { packUserStatus } from '@/misc/user-status.js';
 import { USER_ACTIVE_THRESHOLD, USER_ONLINE_THRESHOLD } from '@/const.js';
 import type { MiLocalUser, MiPartialLocalUser, MiPartialRemoteUser, MiRemoteUser, MiUser } from '@/models/User.js';
 import {
@@ -429,6 +430,7 @@ export class UserEntityService implements OnModuleInit {
 		const profile = isDetailed
 			? (opts.userProfile ?? await this.userProfilesRepository.findOneByOrFail({ userId: user.id }))
 			: null;
+		const status = packUserStatus(profile ?? {});
 
 		let relation: UserRelation | null = null;
 		if (meId && !isMe && isDetailed) {
@@ -541,6 +543,8 @@ export class UserEntityService implements OnModuleInit {
 				isSilenced: this.roleService.getUserPolicies(user.id).then(r => !r.canPublicNote),
 				isSuspended: user.isSuspended,
 				description: profile!.description,
+				statusMessage: status.statusMessage,
+				statusExpiresAt: status.statusExpiresAt,
 				location: profile!.location,
 				birthday: profile!.birthday,
 				lang: profile!.lang,

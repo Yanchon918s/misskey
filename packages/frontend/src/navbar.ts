@@ -59,6 +59,12 @@ export const navbarItemDef = reactive<{
 		icon: 'ti ti-hash',
 		to: '/explore',
 	},
+	niwa: {
+		title: i18n.ts._niwa.title,
+		icon: 'ti ti-seeding',
+		show: computed(() => $i != null),
+		to: '/niwa',
+	},
 	announcements: {
 		title: i18n.ts.announcements,
 		icon: 'ti ti-speakerphone',

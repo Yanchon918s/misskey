@@ -6,6 +6,13 @@ SPDX-License-Identifier: AGPL-3.0-only
 <template>
 <SearchMarker path="/settings/profile" :label="i18n.ts.profile" :keywords="['profile']" icon="ti ti-user">
 	<div class="_gaps_m">
+		<SearchMarker :keywords="['status', 'message']">
+			<MkFolder>
+				<template #icon><i class="ti ti-message-circle"></i></template>
+				<template #label><SearchLabel>{{ i18n.ts._statusMessage.title }}</SearchLabel></template>
+				<XStatusMessage/>
+			</MkFolder>
+		</SearchMarker>
 		<div class="_panel">
 			<div :class="$style.banner" :style="{ backgroundImage: $i.bannerUrl ? `url(${ $i.bannerUrl })` : '' }">
 				<div :class="$style.bannerEdit">
@@ -184,6 +191,7 @@ import { store } from '@/store.js';
 import MkInfo from '@/components/MkInfo.vue';
 import MkTextarea from '@/components/MkTextarea.vue';
 import { genId } from '@/utility/id.js';
+import XStatusMessage from './status-message.vue';
 
 const $i = ensureSignin();
 

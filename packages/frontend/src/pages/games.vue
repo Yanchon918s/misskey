@@ -7,6 +7,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 <PageWithHeader>
 	<div class="_spacer" style="--MI_SPACER-w: 800px;">
 		<div class="_gaps">
+			<MkButton type="routerLink" to="/niwa" large><i class="ti ti-seeding"></i> {{ i18n.ts._niwa.title }}</MkButton>
 			<div class="_panel" :class="$style.link">
 				<MkA to="/bubble-game">
 					<img src="/client-assets/drop-and-fusion/logo.png" style="display: block; max-width: 100%; max-height: 200px; margin: auto;"/>
@@ -25,6 +26,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 <script lang="ts" setup>
 import { i18n } from '@/i18n.js';
 import { definePage } from '@/page.js';
+import MkButton from '@/components/MkButton.vue';
 
 definePage(() => ({
 	title: 'Misskey Games',

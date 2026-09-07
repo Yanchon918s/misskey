@@ -30,6 +30,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<div :class="$style.username"><MkAcct :user="user"/></div>
 			</div>
 			<div :class="$style.description">
+				<MkUserStatus :message="user.statusMessage" :expiresAt="user.statusExpiresAt"/>
 				<Mfm v-if="user.description" :class="$style.mfm" :text="user.description" :author="user"/>
 				<div v-else style="opacity: 0.7;">{{ i18n.ts.noAccountDescription }}</div>
 			</div>
@@ -67,6 +68,7 @@ import { misskeyApi } from '@/utility/misskey-api.js';
 import { getUserMenu } from '@/utility/get-user-menu.js';
 import number from '@/filters/number.js';
 import { i18n } from '@/i18n.js';
+import MkUserStatus from '@/components/MkUserStatus.vue';
 import { prefer } from '@/preferences.js';
 import { $i } from '@/i.js';
 import { isFollowingVisibleForMe, isFollowersVisibleForMe } from '@/utility/isFfVisibleForMe.js';

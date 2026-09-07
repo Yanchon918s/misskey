@@ -2856,6 +2856,15 @@ export type paths = {
          */
         post: operations['i___update-email'];
     };
+    '/i/update-status': {
+        /**
+         * i/update-status
+         * @description No description provided.
+         *
+         *     **Credential required**: *Yes* / **Permission**: *write:account*
+         */
+        post: operations['i___update-status'];
+    };
     '/i/webhooks/create': {
         /**
          * i/webhooks/create
@@ -3001,6 +3010,24 @@ export type paths = {
          *     **Credential required**: *Yes* / **Permission**: *read:account*
          */
         post: operations['my___apps'];
+    };
+    '/niwa/show': {
+        /**
+         * niwa/show
+         * @description No description provided.
+         *
+         *     **Credential required**: *Yes* / **Permission**: *read:niwa*
+         */
+        post: operations['niwa___show'];
+    };
+    '/niwa/water': {
+        /**
+         * niwa/water
+         * @description No description provided.
+         *
+         *     **Credential required**: *Yes* / **Permission**: *write:niwa*
+         */
+        post: operations['niwa___water'];
     };
     '/notes': {
         /**
@@ -4107,6 +4134,9 @@ export type components = {
             isSuspended: boolean;
             /** @example Hi masters, I am Ai! */
             description: string | null;
+            statusMessage?: string | null;
+            /** Format: date-time */
+            statusExpiresAt?: string | null;
             location: string | null;
             /** @example 2018-03-12 */
             birthday: string | null;
@@ -28291,6 +28321,81 @@ export interface operations {
             };
         };
     };
+    'i___update-status': {
+        requestBody: {
+            content: {
+                'application/json': {
+                    message: string | null;
+                    expiresIn: number | null;
+                };
+            };
+        };
+        responses: {
+            /** @description OK (with results) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['MeDetailed'];
+                };
+            };
+            /** @description Client error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description Authentication error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description Forbidden error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description I'm Ai */
+            418: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+        };
+    };
     i___webhooks___create: {
         requestBody: {
             content: {
@@ -29355,6 +29460,147 @@ export interface operations {
             };
             /** @description I'm Ai */
             418: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+        };
+    };
+    niwa___show: {
+        responses: {
+            /** @description OK (with results) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': {
+                        waterCount: number;
+                        growthStage: number;
+                        nextGrowthAt: number | null;
+                        weeklyTheme: number;
+                        wateredToday: boolean;
+                        /** Format: date-time */
+                        nextWateringAt: string;
+                    };
+                };
+            };
+            /** @description Client error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description Authentication error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description Forbidden error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description I'm Ai */
+            418: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+        };
+    };
+    niwa___water: {
+        responses: {
+            /** @description OK (with results) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': {
+                        waterCount: number;
+                        growthStage: number;
+                        nextGrowthAt: number | null;
+                        weeklyTheme: number;
+                        wateredToday: boolean;
+                        /** Format: date-time */
+                        nextWateringAt: string;
+                    };
+                };
+            };
+            /** @description Client error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description Authentication error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description Forbidden error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description I'm Ai */
+            418: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    'application/json': components['schemas']['Error'];
+                };
+            };
+            /** @description Too many requests */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

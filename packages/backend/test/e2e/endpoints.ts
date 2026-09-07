@@ -13,6 +13,8 @@ import { Blob } from 'node-fetch';
 import { api, castAsError, initTestDb, post, role, signup, simpleGet, uploadFile } from '../utils.js';
 import type * as misskey from 'misskey-js';
 import { MiUser } from '@/models/_.js';
+import { MiUserProfile } from '@/models/UserProfile.js';
+import { MiNiwaGarden } from '@/models/NiwaGarden.js';
 
 const waitForPushToTlOptions = { timeout: 3000, interval: 25 };
 
@@ -1251,3 +1253,70 @@ describe('Endpoints', () => {
 		});
 	});
 });
+
+describe('NIWA', () => {
+	let gardener: misskey.entities.SignupResponse;
+	let neighbor: misskey.entities.SignupResponse;
+
+	beforeAll(async () => {
+		gardener = await signup({ username: 'niwagardener' });
+		neighbor = await signup({ username: 'niwaneighbor' });
+	});
+
+	test('閲覧と水やりはログインが必要', async () => {
+		expect((await api('niwa/show', {})).status).toBe(401);
+		expect((await api('niwa/water', {})).status).toBe(401);
+	});
+
+	test('初期状態は空の庭で、水やり可能', async () => {
+		const res = await api('niwa/show', {}, gardener);
+		expect(res.status).toBe(200);
+		expect(res.body).toMatchObject({ waterCount: 0, growthStage: 0, nextGrowthAt: 1, wateredToday: false });
+	});
+
+	test('複数タブからの同時水やりを1回だけ加算する', async () => {
+		const results = await Promise.all(Array.from({ length: 6 }, () => api('niwa/water', {}, gardener)));
+		for (const res of results) {
+			expect(res.status).toBe(200);
+			expect(res.body).toMatchObject({ waterCount: 1, growthStage: 1, nextGrowthAt: 4, wateredToday: true });
+		}
+	});
+
+	test('他の住民と庭を共有し、水やり済み状態は個人ごとに管理する', async () => {
+		const before = await api('niwa/show', {}, neighbor);
+		expect(before.body).toMatchObject({ waterCount: 1, wateredToday: false });
+		const res = await api('niwa/water', {}, neighbor);
+		expect(res.body).toMatchObject({ waterCount: 2, wateredToday: true });
+		expect((await api('niwa/show', {}, gardener)).body.waterCount).toBe(2);
+	});
+
+	test('日付が変わると再び水やりできる', async () => {
+		const connection = await initTestDb(true);
+		try {
+			await connection.getRepository(MiUserProfile).update(gardener.id, { niwaLastWateredAt: new Date(Date.now() - 86400000) });
+		} finally {
+			await connection.destroy();
+		}
+		expect((await api('niwa/show', {}, gardener)).body.wateredToday).toBe(false);
+		const res = await api('niwa/water', {}, gardener);
+		expect(res.body).toMatchObject({ waterCount: 3, wateredToday: true });
+		const next = new Date(res.body.nextWateringAt);
+		expect(next.getUTCHours()).toBe(0);
+		expect(next.getUTCMinutes()).toBe(0);
+		expect(next.getTime()).toBeGreaterThan(Date.now());
+	});
+
+	test('育ち切った庭でも水やり回数を保持する', async () => {
+		const connection = await initTestDb(true);
+		try {
+			await connection.getRepository(MiNiwaGarden).update('main', { waterCount: 25 });
+		} finally {
+			await connection.destroy();
+		}
+		const res = await api('niwa/show', {}, gardener);
+		expect(res.body).toMatchObject({ waterCount: 25, growthStage: 5, nextGrowthAt: null });
+		expect(res.body.weeklyTheme).toBeGreaterThanOrEqual(0);
+		expect(res.body.weeklyTheme).toBeLessThan(4);
+	});
+});
+
