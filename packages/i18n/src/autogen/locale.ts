@@ -9467,6 +9467,14 @@ export interface Locale extends ILocale {
     };
     "_permissions": {
         /**
+         * NIWAの庭と自分の水やり状況を見る
+         */
+        "read:niwa": string;
+        /**
+         * NIWAの庭に水をやる
+         */
+        "write:niwa": string;
+        /**
          * アカウントの情報を見る
          */
         "read:account": string;
@@ -9922,6 +9930,10 @@ export interface Locale extends ILocale {
         "saturday": string;
     };
     "_widgets": {
+        /**
+         * NIWA
+         */
+        "niwa": string;
         /**
          * プロフィール
          */
@@ -13425,5 +13437,85 @@ export interface Locale extends ILocale {
          * MFM
          */
         "mfm": string;
+    };
+    "_statusMessage": {
+        /**
+         * ステータスメッセージ
+         */
+        "title": string;
+        /**
+         * {n} / 80文字
+         */
+        "characterCount": ParameterizedString<"n">;
+        /**
+         * 今の気分や状態を80文字以内で設定します。このサーバーの公開プロフィールに表示され、連合先には配信されません。
+         */
+        "description": string;
+        /**
+         * 自動で解除するまでの時間
+         */
+        "duration": string;
+        /**
+         * {n}分
+         */
+        "minutes": ParameterizedString<"n">;
+        /**
+         * ステータスを解除
+         */
+        "clear": string;
+        /**
+         * 💻 作業中
+         */
+        "working": string;
+        /**
+         * 🫧 暇です
+         */
+        "free": string;
+        /**
+         * 🎧 通話できます
+         */
+        "available": string;
+        /**
+         * 🫠 溶けています
+         */
+        "melting": string;
+    };
+    "_niwa": {
+        /**
+         * NIWA
+         */
+        "title": string;
+        /**
+         * みんなで育てる、このサーバーの庭です。1人1日1回の水やりで少しずつ育ち、週替わりの植物が顔を出します。日付はUTC 0時（日本時間9時）に切り替わります。水やりを休んでも枯れません。
+         */
+        "description": string;
+        /**
+         * 水をやる
+         */
+        "water": string;
+        /**
+         * 今日は水やり済み
+         */
+        "watered": string;
+        /**
+         * 成長段階{n}の庭
+         */
+        "growth": ParameterizedString<"n">;
+        /**
+         * みんなで{n}回の水やり
+         */
+        "totalWaterings": ParameterizedString<"n">;
+        /**
+         * あと{n}回の水やりで、もっとにぎやかに
+         */
+        "untilNextGrowth": ParameterizedString<"n">;
+        /**
+         * にぎやかな庭になりました。これからもみんなで育てましょう。
+         */
+        "flourishing": string;
+        /**
+         * 次の水やり: {time}
+         */
+        "nextWatering": ParameterizedString<"time">;
     };
 }

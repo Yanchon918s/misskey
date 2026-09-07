@@ -471,6 +471,8 @@ import type {
 	IUpdateResponse,
 	IUpdateEmailRequest,
 	IUpdateEmailResponse,
+	IUpdateStatusRequest,
+	IUpdateStatusResponse,
 	IWebhooksCreateRequest,
 	IWebhooksCreateResponse,
 	IWebhooksDeleteRequest,
@@ -494,6 +496,8 @@ import type {
 	MuteListResponse,
 	MyAppsRequest,
 	MyAppsResponse,
+	NiwaShowResponse,
+	NiwaWaterResponse,
 	NotesRequest,
 	NotesResponse,
 	NotesBubbleTimelineRequest,
@@ -983,6 +987,7 @@ export type Endpoints = {
 	'i/unpin': { req: IUnpinRequest; res: IUnpinResponse };
 	'i/update': { req: IUpdateRequest; res: IUpdateResponse };
 	'i/update-email': { req: IUpdateEmailRequest; res: IUpdateEmailResponse };
+	'i/update-status': { req: IUpdateStatusRequest; res: IUpdateStatusResponse };
 	'i/webhooks/create': { req: IWebhooksCreateRequest; res: IWebhooksCreateResponse };
 	'i/webhooks/delete': { req: IWebhooksDeleteRequest; res: EmptyResponse };
 	'i/webhooks/list': { req: EmptyRequest; res: IWebhooksListResponse };
@@ -999,6 +1004,8 @@ export type Endpoints = {
 	'mute/delete': { req: MuteDeleteRequest; res: EmptyResponse };
 	'mute/list': { req: MuteListRequest; res: MuteListResponse };
 	'my/apps': { req: MyAppsRequest; res: MyAppsResponse };
+	'niwa/show': { req: EmptyRequest; res: NiwaShowResponse };
+	'niwa/water': { req: EmptyRequest; res: NiwaWaterResponse };
 	'notes': { req: NotesRequest; res: NotesResponse };
 	'notes/bubble-timeline': { req: NotesBubbleTimelineRequest; res: NotesBubbleTimelineResponse };
 	'notes/children': { req: NotesChildrenRequest; res: NotesChildrenResponse };

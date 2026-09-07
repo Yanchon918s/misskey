@@ -8,9 +8,10 @@ process.env.NODE_ENV = 'test';
 import * as assert from 'assert';
 import { beforeAll, beforeEach, describe, test } from 'vitest';
 import { inspect } from 'node:util';
-import { api, post, role, signup, successfulApiCall, uploadFile } from '../utils.js';
+import { api, initTestDb, post, role, signup, successfulApiCall, uploadFile } from '../utils.js';
 import type * as misskey from 'misskey-js';
 import { DEFAULT_POLICIES } from '@/core/RoleService.js';
+import { MiUserProfile } from '@/models/UserProfile.js';
 
 describe('ユーザー', () => {
 	// エンティティとしてのユーザーを主眼においたテストを記述する
@@ -69,6 +70,8 @@ describe('ユーザー', () => {
 			isSilenced: user.isSilenced,
 			isSuspended: user.isSuspended,
 			description: user.description,
+			statusMessage: user.statusMessage,
+			statusExpiresAt: user.statusExpiresAt,
 			location: user.location,
 			birthday: user.birthday,
 			lang: user.lang,
@@ -892,3 +895,64 @@ describe('ユーザー', () => {
 	test.todo('を管理人として確認することができる(admin/show-users)');
 	test.todo('をサーバー向けに取得することができる(federation/users)');
 });
+
+describe('ステータスメッセージ', () => {
+	let user: misskey.entities.SignupResponse;
+	beforeAll(async () => {
+		user = await signup({ username: 'statusmessage' });
+	});
+
+	test('認証なしでは変更できない', async () => {
+		const res = await api('i/update-status', { message: '作業中', expiresIn: 120 });
+		assert.strictEqual(res.status, 401);
+	});
+
+	test('短文と期限を保存し、他のプロフィール項目は保持する', async () => {
+		await api('i/update', { description: '自己紹介', name: '表示名' }, user);
+		const start = Date.now();
+		const res = await api('i/update-status', { message: '  💻 作業中  ', expiresIn: 120 }, user);
+		assert.strictEqual(res.status, 200);
+		assert.strictEqual(res.body.statusMessage, '💻 作業中');
+		assert.strictEqual(res.body.description, '自己紹介');
+		assert.strictEqual(res.body.name, '表示名');
+		assert.ok(Date.parse(res.body.statusExpiresAt!) >= start + 120 * 60000);
+		const shown = await api('users/show', { userId: user.id });
+		assert.strictEqual(shown.body.statusMessage, '💻 作業中');
+	});
+
+	test('期限切れの短文と期限はAPIから返さない', async () => {
+		const connection = await initTestDb(true);
+		try {
+			await connection.getRepository(MiUserProfile).update(user.id, { statusExpiresAt: new Date(Date.now() - 1000) });
+		} finally {
+			await connection.destroy();
+		}
+		const res = await api('users/show', { userId: user.id });
+		assert.strictEqual(res.body.statusMessage, null);
+		assert.strictEqual(res.body.statusExpiresAt, null);
+	});
+
+	test('期限なしで設定し、空白のみの入力で解除できる', async () => {
+		const res = await api('i/update-status', { message: '🫠', expiresIn: null }, user);
+		assert.strictEqual(res.body.statusExpiresAt, null);
+		assert.strictEqual(res.body.statusMessage, '🫠');
+		const cleared = await api('i/update-status', { message: '   ', expiresIn: 30 }, user);
+		assert.strictEqual(cleared.body.statusMessage, null);
+		assert.strictEqual(cleared.body.statusExpiresAt, null);
+	});
+
+	test('80文字を超える短文と範囲外の期限を拒否する', async () => {
+		assert.strictEqual((await api('i/update-status', { message: 'あ'.repeat(81), expiresIn: 120 }, user)).status, 400);
+		assert.strictEqual((await api('i/update-status', { message: '作業中', expiresIn: 0 }, user)).status, 400);
+		assert.strictEqual((await api('i/update-status', { message: '作業中', expiresIn: 1441 }, user)).status, 400);
+	});
+
+	test('絵文字80文字の入力を保持し、nullで明示的に解除する', async () => {
+		const res = await api('i/update-status', { message: '🌱'.repeat(80), expiresIn: null }, user);
+		assert.strictEqual(res.status, 200);
+		assert.strictEqual(res.body.statusMessage, '🌱'.repeat(80));
+		const cleared = await api('i/update-status', { message: null, expiresIn: null }, user);
+		assert.strictEqual(cleared.body.statusMessage, null);
+	});
+});
+

@@ -2489,6 +2489,8 @@ _2fa:
   moreDetailedGuideHere: "詳細なガイドはこちら"
 
 _permissions:
+  "read:niwa": "NIWAの庭と自分の水やり状況を見る"
+  "write:niwa": "NIWAの庭に水をやる"
   "read:account": "アカウントの情報を見る"
   "write:account": "アカウントの情報を変更する"
   "read:blocks": "ブロックを見る"
@@ -2609,6 +2611,7 @@ _weekday:
   saturday: "土曜日"
 
 _widgets:
+  niwa: "NIWA"
   profile: "プロフィール"
   instanceInfo: "サーバー情報"
   memo: "付箋"
@@ -3594,3 +3597,26 @@ _qr:
   scanFile: "端末の画像をスキャン"
   raw: "テキスト"
   mfm: "MFM"
+
+_statusMessage:
+  title: "ステータスメッセージ"
+  characterCount: "{n} / 80文字"
+  description: "今の気分や状態を80文字以内で設定します。このサーバーの公開プロフィールに表示され、連合先には配信されません。"
+  duration: "自動で解除するまでの時間"
+  minutes: "{n}分"
+  clear: "ステータスを解除"
+  working: "💻 作業中"
+  free: "🫧 暇です"
+  available: "🎧 通話できます"
+  melting: "🫠 溶けています"
+
+_niwa:
+  title: "NIWA"
+  description: "みんなで育てる、このサーバーの庭です。1人1日1回の水やりで少しずつ育ち、週替わりの植物が顔を出します。日付はUTC 0時（日本時間9時）に切り替わります。水やりを休んでも枯れません。"
+  water: "水をやる"
+  watered: "今日は水やり済み"
+  growth: "成長段階{n}の庭"
+  totalWaterings: "みんなで{n}回の水やり"
+  untilNextGrowth: "あと{n}回の水やりで、もっとにぎやかに"
+  flourishing: "にぎやかな庭になりました。これからもみんなで育てましょう。"
+  nextWatering: "次の水やり: {time}"
