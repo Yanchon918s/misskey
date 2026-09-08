@@ -14,6 +14,8 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
+      # The misskey-preview quota cannot accommodate another full-size Misskey pod.
+      # Replace one old pod before creating its successor instead of stalling on quota.
       maxSurge: 0
       maxUnavailable: 1
   selector:
@@ -27,7 +29,7 @@ spec:
         app.kubernetes.io/component: app
         environment: production
       annotations:
-        ao9s.net/source-revision: "7d2c1aed5b9853d145bc921c7328064a9dd817e4"
+        ao9s.net/source-revision: "0cea823e6ead444b4bccebc186d63ae5bc9e3f97"
     spec:
       terminationGracePeriodSeconds: 60
       securityContext:
@@ -37,7 +39,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: misskey
-          image: ghcr.io/yanchon918s/misskey@sha256:cd722224a7eaae420177d4c987b5a13306eec32c0bc24a0c4f50b7ecfe0f2e61
+          image: ghcr.io/yanchon918s/misskey@sha256:6c3f7287626de5358ecf73100955cf066eebeecfb887f64ddf5d2c93dc3412ae
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsNonRoot: true
