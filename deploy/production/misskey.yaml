@@ -14,8 +14,10 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
+      # The misskey-preview quota cannot accommodate another full-size Misskey pod.
+      # Replace one old pod before creating its successor instead of stalling on quota.
+      maxSurge: 0
+      maxUnavailable: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: misskey

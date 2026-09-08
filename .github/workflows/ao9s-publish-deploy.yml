@@ -101,6 +101,16 @@ jobs:
           ref: ${{ env.DEPLOY_BRANCH }}
           path: deployment
 
+      - name: Sync deployment manifest from validated source
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_manifest='source/deploy/production/misskey.yaml'
+          deploy_manifest='deployment/deploy/production/misskey.yaml'
+          test -f "$source_manifest"
+          test -f "$deploy_manifest"
+          cp "$source_manifest" "$deploy_manifest"
+
       - name: Pin deployment to the published digest
         env:
           IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
