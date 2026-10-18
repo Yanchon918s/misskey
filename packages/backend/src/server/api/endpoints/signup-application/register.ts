@@ -138,6 +138,16 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				throw new ApiError(meta.errors.unavailable);
 			}
 
+			// 申請の状態はここで引き直す。画面が古い状態を握っていても、承認されていない申請は通さない。
+			// メールアドレスの検証は外部サービスを呼びうるので、コードを持たない相手には先に進ませない
+			const application = await this.signupApplicationService.findByClaimCode(ps.claimCode);
+			if (application == null) {
+				throw new ApiError(meta.errors.noSuchApplication);
+			}
+			if (application.status !== 'approved') {
+				throw new ApiError(meta.errors.notApproved);
+			}
+
 			if (!this.userEntityService.validateLocalUsername(ps.username)) {
 				throw new ApiError(meta.errors.invalidUsername);
 			}
@@ -156,15 +166,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				if (!res.available) {
 					throw new ApiError(meta.errors.emailUnavailable);
 				}
-			}
-
-			// 申請の状態はここで引き直す。画面が古い状態を握っていても、承認されていない申請は通さない
-			const application = await this.signupApplicationService.findByClaimCode(ps.claimCode);
-			if (application == null) {
-				throw new ApiError(meta.errors.noSuchApplication);
-			}
-			if (application.status !== 'approved') {
-				throw new ApiError(meta.errors.notApproved);
 			}
 
 			if (emailAddress != null) {

@@ -2278,7 +2278,7 @@ declare namespace entities {
         SignupApplication,
         SignupApplicationAnswer,
         SignupApplicationFormField,
-        SignupApplicationStatus,
+        SignupApplicationForApplicant,
         Page,
         PageBlock,
         Channel,
@@ -3537,6 +3537,9 @@ type SignupApplicationApplyRequest = operations['signup-application___apply']['r
 type SignupApplicationApplyResponse = operations['signup-application___apply']['responses']['200']['content']['application/json'];
 
 // @public (undocumented)
+type SignupApplicationForApplicant = components['schemas']['SignupApplicationForApplicant'];
+
+// @public (undocumented)
 type SignupApplicationFormField = components['schemas']['SignupApplicationFormField'];
 
 // @public (undocumented)
@@ -3547,9 +3550,6 @@ type SignupApplicationRegisterRequest = operations['signup-application___registe
 
 // @public (undocumented)
 type SignupApplicationRegisterResponse = operations['signup-application___register']['responses']['200']['content']['application/json'];
-
-// @public (undocumented)
-type SignupApplicationStatus = components['schemas']['SignupApplicationStatus'];
 
 // @public (undocumented)
 type SignupApplicationStatusRequest = operations['signup-application___status']['requestBody']['content']['application/json'];

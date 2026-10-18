@@ -85,6 +85,13 @@ export function hashSignupApplicationClaimCode(claimCode: string): string {
 const UNSTORABLE_CHARACTERS = /\u0000|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
 
 /**
+ * jsonb に保存できない文字を取り除く (管理者が定義するフォームの項目名向け)。
+ */
+export function removeUnstorableCharacters(text: string): string {
+	return text.replace(new RegExp(UNSTORABLE_CHARACTERS.source, 'g'), '');
+}
+
+/**
  * 送られた回答を現在のフォーム定義と突き合わせる。
  *
  * 値は定義と同じ順序の配列で受け取り、ラベルは定義から埋める。
@@ -187,7 +194,8 @@ export class SignupApplicationService {
 	/**
 	 * クレームコードが指す申請を返す。期限を過ぎていれば、その場で期限切れにする。
 	 *
-	 * 存在しないコードと期限切れのコードは呼び出し側で区別させない (区別できると、総当たりで実在だけ漏れる)。
+	 * 期限切れの申請もそのまま返す (申請者にはもう一度申請するよう案内する)。
+	 * 総当たりへの耐性はコードのエントロピー (160bit) とレート制限が担う。
 	 */
 	@bindThis
 	public async findByClaimCode(claimCode: string): Promise<MiSignupApplication | null> {

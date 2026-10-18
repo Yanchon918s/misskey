@@ -29,7 +29,7 @@ export class SignupApplicationEntityService {
 	 * 申請者本人に見せる形。審査した人など、管理者向けの情報は含めない。
 	 */
 	@bindThis
-	public packStatus(application: MiSignupApplication): Packed<'SignupApplicationStatus'> {
+	public packStatus(application: MiSignupApplication): Packed<'SignupApplicationForApplicant'> {
 		return {
 			status: application.status,
 			createdAt: this.idService.parse(application.id).date.toISOString(),

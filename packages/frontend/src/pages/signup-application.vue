@@ -126,11 +126,11 @@ SPDX-License-Identifier: AGPL-3.0-only
 						<div class="_gaps_m">
 							<MkInfo v-if="form.length === 0">{{ i18n.ts._signupApplication.noFormFields }}</MkInfo>
 							<template v-for="(field, i) in form" :key="i">
-								<MkTextarea v-if="field.type === 'textarea'" v-model="answers[i]" :disabled="busy">
+								<MkTextarea v-if="field.type === 'textarea'" v-model="answers[i]" :required="field.required" :disabled="busy">
 									<template #label>{{ field.label }}<span v-if="field.required" :class="$style.required"> *</span></template>
 									<template #caption>{{ answerLengthCaption(field, i) }}</template>
 								</MkTextarea>
-								<MkInput v-else v-model="answers[i]" :disabled="busy">
+								<MkInput v-else v-model="answers[i]" :required="field.required" :disabled="busy">
 									<template #label>{{ field.label }}<span v-if="field.required" :class="$style.required"> *</span></template>
 									<template #caption>{{ answerLengthCaption(field, i) }}</template>
 								</MkInput>
@@ -177,7 +177,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 import * as Misskey from 'misskey-js';
 import { host } from '@@/js/config.js';
 import type { Captcha } from '@/components/MkCaptcha.vue';
@@ -213,7 +213,7 @@ watch(form, (fields) => {
 
 const claimCode = ref('');
 const issuedCode = ref('');
-const application = ref<Misskey.entities.SignupApplicationStatus | null>(null);
+const application = ref<Misskey.entities.SignupApplicationForApplicant | null>(null);
 const username = ref('');
 const password = ref('');
 const retypedPassword = ref('');
@@ -287,11 +287,12 @@ async function fetchFormToken() {
 	}
 }
 
-onMounted(() => {
-	if (!instance.approvalRequiredForSignup) return;
+// マウント時のサーバー情報が古く、後から承認制が有効になった場合もここで始める
+watch(() => instance.approvalRequiredForSignup, (enabled) => {
+	if (!enabled || ticker != null) return;
 	fetchFormToken();
 	ticker = window.setInterval(() => { now.value = Date.now(); }, 500);
-});
+}, { immediate: true });
 
 onUnmounted(() => {
 	if (ticker != null) window.clearInterval(ticker);
@@ -321,6 +322,18 @@ function resetCaptchas() {
 	turnstileResponse.value = null;
 	testcaptchaResponse.value = null;
 }
+
+/**
+ * 次の申請に備えて、使い終わった captcha とフォームトークンを捨てて取り直す。
+ */
+async function prepareNextApplication() {
+	resetCaptchas();
+	formTokenLoaded.value = false;
+	await fetchFormToken();
+}
+
+// captcha の検証より前に返るエラー。この場合 captcha のトークンは消費されていないので解き直させない
+const ERRORS_BEFORE_CAPTCHA = ['UNAVAILABLE', 'FORM_CHANGED', 'ANSWER_REQUIRED', 'ANSWER_TOO_LONG', 'INVALID_ANSWER', 'INVALID_PARAM', 'RATE_LIMIT_EXCEEDED'];
 
 function errorMessageOf(err: unknown): string {
 	const code = (err as { code?: string } | null)?.code;
@@ -363,12 +376,15 @@ async function apply() {
 		issuedCode.value = res.claimCode;
 		claimCode.value = res.claimCode;
 		application.value = res.application;
+		answers.value = form.value.map(() => '');
+		// captcha とフォームトークンは使い切ったので、入口へ戻ったときのために取り直しておく
+		await prepareNextApplication();
 	} catch (err) {
 		errorMessage.value = errorMessageOf(err);
-		resetCaptchas();
-		// トークンが失効・使用済みなら取り直す。そのままだと何度送っても同じエラーになる
-		if ((err as { code?: string } | null)?.code === 'FORM_TOKEN_INVALID') {
-			await fetchFormToken();
+		const code = (err as { code?: string } | null)?.code;
+		if (code == null || !ERRORS_BEFORE_CAPTCHA.includes(code)) {
+			// captcha は使い捨てで、フォームトークンも失効・使用済みなら何度送っても同じエラーになる
+			await prepareNextApplication();
 		}
 	} finally {
 		busy.value = false;
@@ -385,7 +401,10 @@ async function refresh() {
 		});
 		application.value = res.application;
 	} catch (err) {
-		application.value = null;
+		// レート制限や通信エラーでは今の画面に留まる。入口へ戻すのはコードが見つからないときだけ
+		if ((err as { code?: string } | null)?.code === 'NO_SUCH_APPLICATION') {
+			application.value = null;
+		}
 		errorMessage.value = errorMessageOf(err);
 	} finally {
 		busy.value = false;
@@ -397,7 +416,8 @@ function restart() {
 	claimCode.value = '';
 	answers.value = form.value.map(() => '');
 	errorMessage.value = null;
-	resetCaptchas();
+	// フォームトークンは 1 回限りなので、前の申請で使ったものは取り直す
+	prepareNextApplication();
 }
 
 async function register() {

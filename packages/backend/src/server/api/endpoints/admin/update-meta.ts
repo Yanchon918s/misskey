@@ -13,6 +13,7 @@ import {
 	SIGNUP_APPLICATION_MAX_ANSWER_LENGTH,
 	SIGNUP_APPLICATION_MAX_FORM_FIELDS,
 	SIGNUP_APPLICATION_MAX_LABEL_LENGTH,
+	removeUnstorableCharacters,
 } from '@/core/SignupApplicationService.js';
 import { signupApplicationFormFieldTypes } from '@/models/SignupApplication.js';
 
@@ -407,7 +408,8 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 
 			if (Array.isArray(ps.signupApplicationForm)) {
 				set.signupApplicationForm = ps.signupApplicationForm.map(field => ({
-					label: field.label.trim(),
+					// jsonb に保存できない文字が混じると保存自体が失敗するので取り除く
+					label: removeUnstorableCharacters(field.label).trim(),
 					type: field.type,
 					required: field.required,
 					...(field.maxLength != null ? { maxLength: field.maxLength } : {}),

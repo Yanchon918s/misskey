@@ -358,6 +358,7 @@ export class SignupApiService {
 
 			// 承認制の登録でメールの確認を挟んだ場合は、ここで申請を確保する。
 			// 確保は 1 回しか通らないので、1 つの承認から作られるアカウントは 1 つだけになる。
+			// 承認済みの申請者が確認待ちの間に承認制が無効になっても、確認リンク (30分) からの登録は完了させる。
 			const signupApplicationId = pendingUser.signupApplicationId;
 			if (signupApplicationId != null && !await this.signupApplicationService.claimForRegistration(signupApplicationId)) {
 				throw new FastifyReplyError(400, 'SIGNUP_APPLICATION_NOT_APPROVED');

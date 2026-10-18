@@ -21,6 +21,7 @@ import {
 	SignupApplicationService,
 	buildSignupApplicationAnswers,
 	hashSignupApplicationClaimCode,
+	removeUnstorableCharacters,
 } from '@/core/SignupApplicationService.js';
 import type { SignupApplicationsRepository } from '@/models/_.js';
 import type { SignupApplicationFormField } from '@/models/SignupApplication.js';
@@ -93,6 +94,12 @@ describe('buildSignupApplicationAnswers', () => {
 		expect(errorCodeOf(() => buildSignupApplicationAnswers(fields, ['a\u0000b', '']))).toBe('INVALID_ANSWER');
 		expect(errorCodeOf(() => buildSignupApplicationAnswers(fields, ['a\uD83Db', '']))).toBe('INVALID_ANSWER');
 		expect(errorCodeOf(() => buildSignupApplicationAnswers(fields, ['a\uDF31b', '']))).toBe('INVALID_ANSWER');
+	});
+});
+
+describe('removeUnstorableCharacters', () => {
+	test('NUL と対にならないサロゲートだけを取り除く', () => {
+		expect(removeUnstorableCharacters('a\u0000b\uD83Dc\uDF31d\uD83C\uDF31')).toBe('abcd\uD83C\uDF31');
 	});
 });
 

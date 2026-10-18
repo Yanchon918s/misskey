@@ -5118,7 +5118,7 @@ export type components = {
             required: boolean;
             maxLength?: number;
         };
-        SignupApplicationStatus: {
+        SignupApplicationForApplicant: {
             /** @enum {string} */
             status: 'pending' | 'approved' | 'rejected' | 'expired' | 'completed';
             /** Format: date-time */
@@ -35070,7 +35070,7 @@ export interface operations {
                 content: {
                     'application/json': {
                         claimCode: string;
-                        application: components['schemas']['SignupApplicationStatus'];
+                        application: components['schemas']['SignupApplicationForApplicant'];
                     };
                 };
             };
@@ -35297,7 +35297,7 @@ export interface operations {
                 };
                 content: {
                     'application/json': {
-                        application: components['schemas']['SignupApplicationStatus'];
+                        application: components['schemas']['SignupApplicationForApplicant'];
                     };
                 };
             };

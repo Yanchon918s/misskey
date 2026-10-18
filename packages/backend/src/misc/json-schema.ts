@@ -29,7 +29,7 @@ import {
 	packedSignupApplicationAnswerSchema,
 	packedSignupApplicationFormFieldSchema,
 	packedSignupApplicationSchema,
-	packedSignupApplicationStatusSchema,
+	packedSignupApplicationForApplicantSchema,
 } from '@/models/json-schema/signup-application.js';
 import { packedPageBlockSchema, packedPageSchema } from '@/models/json-schema/page.js';
 import { packedNoteFavoriteSchema } from '@/models/json-schema/note-favorite.js';
@@ -114,7 +114,7 @@ export const refs = {
 	SignupApplication: packedSignupApplicationSchema,
 	SignupApplicationAnswer: packedSignupApplicationAnswerSchema,
 	SignupApplicationFormField: packedSignupApplicationFormFieldSchema,
-	SignupApplicationStatus: packedSignupApplicationStatusSchema,
+	SignupApplicationForApplicant: packedSignupApplicationForApplicantSchema,
 	Page: packedPageSchema,
 	PageBlock: packedPageBlockSchema,
 	Channel: packedChannelSchema,

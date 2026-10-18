@@ -11,6 +11,7 @@ import { CaptchaService } from '@/core/CaptchaService.js';
 import {
 	SignupApplicationError,
 	SignupApplicationService,
+	SIGNUP_APPLICATION_MAX_ANSWER_LENGTH,
 	SIGNUP_APPLICATION_MAX_FORM_FIELDS,
 	buildSignupApplicationAnswers,
 } from '@/core/SignupApplicationService.js';
@@ -84,7 +85,7 @@ export const meta = {
 			application: {
 				type: 'object',
 				optional: false, nullable: false,
-				ref: 'SignupApplicationStatus',
+				ref: 'SignupApplicationForApplicant',
 			},
 		},
 	},
@@ -97,7 +98,8 @@ export const paramDef = {
 		answers: {
 			type: 'array',
 			maxItems: SIGNUP_APPLICATION_MAX_FORM_FIELDS,
-			items: { type: 'string' },
+			// 項目ごとの上限はフォームの定義で検証する。ここでは前後の空白を含めた大きさだけを抑える
+			items: { type: 'string', maxLength: SIGNUP_APPLICATION_MAX_ANSWER_LENGTH * 2 },
 		},
 		formToken: { type: 'string', nullable: true, maxLength: 64 },
 		'hcaptcha-response': { type: 'string', nullable: true },

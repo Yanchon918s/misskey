@@ -132,8 +132,7 @@ async function approve(application: Misskey.entities.SignupApplication) {
 	});
 	if (canceled) return;
 
-	const updated = await os.apiWithDialog('admin/signup-application/approve', { applicationId: application.id });
-	paginator.updateItem(application.id, () => updated);
+	await review('admin/signup-application/approve', application);
 }
 
 async function reject(application: Misskey.entities.SignupApplication) {
@@ -143,8 +142,17 @@ async function reject(application: Misskey.entities.SignupApplication) {
 	});
 	if (canceled) return;
 
-	const updated = await os.apiWithDialog('admin/signup-application/reject', { applicationId: application.id });
-	paginator.updateItem(application.id, () => updated);
+	await review('admin/signup-application/reject', application);
+}
+
+async function review(endpoint: 'admin/signup-application/approve' | 'admin/signup-application/reject', application: Misskey.entities.SignupApplication) {
+	try {
+		const updated = await os.apiWithDialog(endpoint, { applicationId: application.id });
+		paginator.updateItem(application.id, () => updated);
+	} catch {
+		// 他のモデレーターが先に審査した・期限が切れたなどで、表示が古くなっている (エラーは apiWithDialog が出す)
+		paginator.reload();
+	}
 }
 
 const headerActions = computed(() => [{

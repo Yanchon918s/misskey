@@ -43,7 +43,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 					<div class="_gaps_m">
 						<div :class="$style.caption">{{ i18n.ts._signupApplication._admin.formDescription }}</div>
 
-						<div v-for="(field, i) in signupApplicationForm" :key="i" class="_gaps_s" :class="$style.formField">
+						<div v-for="(field, i) in signupApplicationForm" :key="field.key" class="_gaps_s" :class="$style.formField">
 							<MkInput v-model="field.label">
 								<template #label>{{ i18n.ts._signupApplication._admin.fieldLabel }}</template>
 							</MkInput>
@@ -247,9 +247,11 @@ const approvalRequiredForSignup = ref(meta.approvalRequiredForSignup);
 const maxFormFields = 10;
 const defaultAnswerLength = 500;
 const maxAnswerLength = 2000;
-// MkInput (type="number") は空欄を null で返すので、編集中は maxLength を null で持つ
-type EditableSignupApplicationFormField = Omit<Misskey.entities.SignupApplicationFormField, 'maxLength'> & { maxLength: number | null };
-const signupApplicationForm = ref<EditableSignupApplicationFormField[]>(meta.signupApplicationForm.map(field => ({ ...field, maxLength: field.maxLength ?? null })));
+// 編集中は行の削除で入力欄が入れ替わらないように、行ごとに固定の key を持たせる。
+// maxLength は空欄のとき null で始め、MkInput (type="number") が空欄を NaN で返しても保存時に既定値として扱う
+type EditableSignupApplicationFormField = Omit<Misskey.entities.SignupApplicationFormField, 'maxLength'> & { key: number; maxLength: number | null };
+let nextSignupApplicationFormFieldKey = 0;
+const signupApplicationForm = ref<EditableSignupApplicationFormField[]>(meta.signupApplicationForm.map(field => ({ ...field, key: nextSignupApplicationFormFieldKey++, maxLength: field.maxLength ?? null })));
 const fieldTypeDef = [
 	{ label: i18n.ts._signupApplication._admin.fieldTypeText, value: 'text' as const },
 	{ label: i18n.ts._signupApplication._admin.fieldTypeTextarea, value: 'textarea' as const },
@@ -317,7 +319,7 @@ async function onChange_approvalRequiredForSignup(value: boolean) {
 
 function addSignupApplicationFormField() {
 	if (signupApplicationForm.value.length >= maxFormFields) return;
-	signupApplicationForm.value.push({ label: '', type: 'text', required: false, maxLength: null });
+	signupApplicationForm.value.push({ key: nextSignupApplicationFormFieldKey++, label: '', type: 'text', required: false, maxLength: null });
 }
 
 function removeSignupApplicationFormField(index: number) {
@@ -331,7 +333,7 @@ function save_signupApplicationForm() {
 			type: field.type,
 			required: field.required,
 			// 空欄は既定の文字数にする
-			...(typeof field.maxLength === 'number' && field.maxLength > 0 ? { maxLength: field.maxLength } : {}),
+			...(typeof field.maxLength === 'number' && Number.isFinite(field.maxLength) && field.maxLength > 0 ? { maxLength: field.maxLength } : {}),
 		})),
 	}).then(() => {
 		fetchInstance(true);

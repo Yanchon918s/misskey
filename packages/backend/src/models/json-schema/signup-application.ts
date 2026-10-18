@@ -45,7 +45,7 @@ export const packedSignupApplicationAnswerSchema = {
 /**
  * 申請者本人に見せる申請の状態。審査した人などの管理者向けの情報は含めない。
  */
-export const packedSignupApplicationStatusSchema = {
+export const packedSignupApplicationForApplicantSchema = {
 	type: 'object',
 	properties: {
 		status: {

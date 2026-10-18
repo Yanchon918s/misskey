@@ -43,7 +43,7 @@ export const meta = {
 			application: {
 				type: 'object',
 				optional: false, nullable: false,
-				ref: 'SignupApplicationStatus',
+				ref: 'SignupApplicationForApplicant',
 			},
 		},
 	},
