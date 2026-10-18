@@ -18,12 +18,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 					'createAvatarDecoration',
 					'createSystemWebhook',
 					'createAbuseReportNotificationRecipient',
+					'approveSignupApplication',
 				].includes(log.type),
 				[$style.logYellow]: [
 					'markSensitiveDriveFile',
 					'resetPassword',
 					'unsetMfa',
 					'suspendRemoteInstance',
+					'rejectSignupApplication',
 				].includes(log.type),
 				[$style.logRed]: [
 					'suspend',
@@ -84,6 +86,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<span v-else-if="log.type === 'deleteFlash'">: @{{ log.info.flashUserUsername }}</span>
 		<span v-else-if="log.type === 'deleteGalleryPost'">: @{{ log.info.postUserUsername }}</span>
 		<span v-else-if="log.type === 'deleteChatRoom'">: @{{ log.info.room.name }}</span>
+		<span v-else-if="log.type === 'approveSignupApplication' || log.type === 'rejectSignupApplication'">: <span class="_monospace">{{ log.info.applicationId }}</span></span>
 	</template>
 	<template #icon>
 		<i v-if="log.type === 'updateServerSettings'" class="ti ti-settings"></i>
@@ -129,6 +132,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<i v-else-if="log.type === 'deleteFlash'" class="ti ti-trash"></i>
 		<i v-else-if="log.type === 'deleteGalleryPost'" class="ti ti-trash"></i>
 		<i v-else-if="log.type === 'deleteChatRoom'" class="ti ti-trash"></i>
+		<i v-else-if="log.type === 'approveSignupApplication'" class="ti ti-user-check"></i>
+		<i v-else-if="log.type === 'rejectSignupApplication'" class="ti ti-user-x"></i>
 	</template>
 	<template #suffix>
 		<MkTime :time="log.createdAt"/>

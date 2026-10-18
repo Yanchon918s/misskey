@@ -9,18 +9,70 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<SearchMarker path="/admin/moderation" :label="i18n.ts.moderation" :keywords="['moderation']" icon="ti ti-shield" :inlining="['serverRules']">
 			<div class="_gaps_m">
 				<SearchMarker :keywords="['open', 'registration']">
-					<MkSwitch :modelValue="enableRegistration" @update:modelValue="onChange_enableRegistration">
+					<MkSwitch :modelValue="enableRegistration" :disabled="approvalRequiredForSignup" @update:modelValue="onChange_enableRegistration">
 						<template #label><SearchLabel>{{ i18n.ts._serverSettings.openRegistration }}</SearchLabel></template>
 						<template #caption>
+							<div v-if="approvalRequiredForSignup">{{ i18n.ts._signupApplication._admin.openRegistrationDisabledWhileApproval }}</div>
 							<div><SearchText>{{ i18n.ts._serverSettings.thisSettingWillAutomaticallyOffWhenModeratorsInactive }}</SearchText></div>
 							<div><i class="ti ti-alert-triangle" style="color: var(--MI_THEME-warn);"></i> <SearchText>{{ i18n.ts._serverSettings.openRegistrationWarning }}</SearchText></div>
 						</template>
 					</MkSwitch>
 				</SearchMarker>
 
+				<SearchMarker :keywords="['approval', 'application', 'registration', 'signup']">
+					<MkSwitch :modelValue="approvalRequiredForSignup" @update:modelValue="onChange_approvalRequiredForSignup">
+						<template #label><SearchLabel>{{ i18n.ts._signupApplication._admin.approvalRequiredForSignup }}</SearchLabel></template>
+						<template #caption>
+							<div><SearchText>{{ i18n.ts._signupApplication._admin.approvalRequiredForSignupDescription }}</SearchText></div>
+							<div>{{ i18n.ts._signupApplication._admin.approvalRequiredForSignupNote }}</div>
+							<div v-if="approvalRequiredForSignup"><MkA to="/admin/signup-applications" class="_link">{{ i18n.ts._signupApplication._admin.applications }}</MkA></div>
+						</template>
+					</MkSwitch>
+				</SearchMarker>
+
+				<MkFolder v-if="approvalRequiredForSignup">
+					<template #icon><i class="ti ti-forms"></i></template>
+					<template #label>{{ i18n.ts._signupApplication._admin.form }}</template>
+					<template #suffix>{{ i18n.tsx._signupApplication._admin.fieldCount({ n: signupApplicationForm.length }) }}</template>
+					<template #footer>
+						<div class="_buttons">
+							<MkButton primary rounded @click="save_signupApplicationForm"><i class="ti ti-check"></i> {{ i18n.ts.save }}</MkButton>
+						</div>
+					</template>
+
+					<div class="_gaps_m">
+						<div :class="$style.caption">{{ i18n.ts._signupApplication._admin.formDescription }}</div>
+
+						<div v-for="(field, i) in signupApplicationForm" :key="i" class="_gaps_s" :class="$style.formField">
+							<MkInput v-model="field.label">
+								<template #label>{{ i18n.ts._signupApplication._admin.fieldLabel }}</template>
+							</MkInput>
+							<MkSelect v-model="field.type" :items="fieldTypeDef">
+								<template #label>{{ i18n.ts._signupApplication._admin.fieldType }}</template>
+							</MkSelect>
+							<MkInput v-model="field.maxLength" type="number" :min="1" :max="maxAnswerLength">
+								<template #label>{{ i18n.ts._signupApplication._admin.fieldMaxLength }}</template>
+								<template #caption>{{ i18n.tsx._signupApplication._admin.fieldMaxLengthDescription({ default: defaultAnswerLength, max: maxAnswerLength }) }}</template>
+							</MkInput>
+							<MkSwitch v-model="field.required">
+								<template #label>{{ i18n.ts._signupApplication._admin.fieldRequired }}</template>
+							</MkSwitch>
+							<div class="_buttons">
+								<MkButton danger rounded @click="removeSignupApplicationFormField(i)"><i class="ti ti-trash"></i> {{ i18n.ts._signupApplication._admin.removeField }}</MkButton>
+							</div>
+						</div>
+
+						<div class="_buttons">
+							<MkButton rounded :disabled="signupApplicationForm.length >= maxFormFields" @click="addSignupApplicationFormField"><i class="ti ti-plus"></i> {{ i18n.ts._signupApplication._admin.addField }}</MkButton>
+						</div>
+						<div v-if="signupApplicationForm.length >= maxFormFields" :class="$style.caption">{{ i18n.tsx._signupApplication._admin.maxFieldsReached({ n: maxFormFields }) }}</div>
+					</div>
+				</MkFolder>
+
 				<SearchMarker :keywords="['email', 'required', 'signup']">
 					<MkSwitch v-model="emailRequiredForSignup" @change="onChange_emailRequiredForSignup">
 						<template #label><SearchLabel>{{ i18n.ts.emailRequiredForSignup }}</SearchLabel> ({{ i18n.ts.recommended }})</template>
+						<template v-if="approvalRequiredForSignup" #caption>{{ i18n.ts._signupApplication._admin.emailRequiredNote }}</template>
 					</MkSwitch>
 				</SearchMarker>
 
@@ -189,6 +241,19 @@ const meta = await misskeyApi('admin/meta');
 
 const enableRegistration = ref(!meta.disableRegistration);
 const emailRequiredForSignup = ref(meta.emailRequiredForSignup);
+const approvalRequiredForSignup = ref(meta.approvalRequiredForSignup);
+
+// 上限はサーバー側 (SignupApplicationService) と揃える
+const maxFormFields = 10;
+const defaultAnswerLength = 500;
+const maxAnswerLength = 2000;
+// MkInput (type="number") は空欄を null で返すので、編集中は maxLength を null で持つ
+type EditableSignupApplicationFormField = Omit<Misskey.entities.SignupApplicationFormField, 'maxLength'> & { maxLength: number | null };
+const signupApplicationForm = ref<EditableSignupApplicationFormField[]>(meta.signupApplicationForm.map(field => ({ ...field, maxLength: field.maxLength ?? null })));
+const fieldTypeDef = [
+	{ label: i18n.ts._signupApplication._admin.fieldTypeText, value: 'text' as const },
+	{ label: i18n.ts._signupApplication._admin.fieldTypeTextarea, value: 'textarea' as const },
+];
 const {
 	model: ugcVisibilityForVisitor,
 	def: ugcVisibilityForVisitorDef,
@@ -223,6 +288,51 @@ async function onChange_enableRegistration(value: boolean) {
 
 	os.apiWithDialog('admin/update-meta', {
 		disableRegistration: !value,
+	}).then(() => {
+		fetchInstance(true);
+	});
+}
+
+async function onChange_approvalRequiredForSignup(value: boolean) {
+	const prevApprovalRequiredForSignup = approvalRequiredForSignup.value;
+	const prevEnableRegistration = enableRegistration.value;
+
+	approvalRequiredForSignup.value = value;
+	// 承認制にするとサーバーが招待コードのない登録を閉じる。解除しても自動では開かない
+	if (value) enableRegistration.value = false;
+
+	try {
+		await os.apiWithDialog('admin/update-meta', {
+			approvalRequiredForSignup: value,
+		});
+	} catch {
+		// 保存できなかったので表示を実際の状態へ戻す
+		approvalRequiredForSignup.value = prevApprovalRequiredForSignup;
+		enableRegistration.value = prevEnableRegistration;
+		return;
+	}
+
+	fetchInstance(true);
+}
+
+function addSignupApplicationFormField() {
+	if (signupApplicationForm.value.length >= maxFormFields) return;
+	signupApplicationForm.value.push({ label: '', type: 'text', required: false, maxLength: null });
+}
+
+function removeSignupApplicationFormField(index: number) {
+	signupApplicationForm.value.splice(index, 1);
+}
+
+function save_signupApplicationForm() {
+	os.apiWithDialog('admin/update-meta', {
+		signupApplicationForm: signupApplicationForm.value.map(field => ({
+			label: field.label,
+			type: field.type,
+			required: field.required,
+			// 空欄は既定の文字数にする
+			...(typeof field.maxLength === 'number' && field.maxLength > 0 ? { maxLength: field.maxLength } : {}),
+		})),
 	}).then(() => {
 		fetchInstance(true);
 	});
@@ -323,3 +433,16 @@ definePage(() => ({
 	icon: 'ti ti-shield',
 }));
 </script>
+
+<style lang="scss" module>
+.caption {
+	font-size: 0.85em;
+	opacity: 0.8;
+}
+
+.formField {
+	padding: 16px;
+	border: solid 1px var(--MI_THEME-divider);
+	border-radius: var(--MI-radius);
+}
+</style>

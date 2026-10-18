@@ -203,6 +203,9 @@ export const ROUTE_DEF = [{
 	path: '/signup-complete/:code',
 	component: page(() => import('@/pages/signup-complete.vue')),
 }, {
+	path: '/signup-application',
+	component: page(() => import('@/pages/signup-application.vue')),
+}, {
 	path: '/verify-email/:code',
 	component: page(() => import('@/pages/verify-email.vue')),
 }, {
@@ -498,6 +501,10 @@ export const ROUTE_DEF = [{
 		path: '/invites',
 		name: 'invites',
 		component: page(() => import('@/pages/admin/invites.vue')),
+	}, {
+		path: '/signup-applications',
+		name: 'signup-applications',
+		component: page(() => import('@/pages/admin/signup-applications.vue')),
 	}, {
 		path: '/abuse-report-notification-recipient',
 		name: 'abuse-report-notification-recipient',
