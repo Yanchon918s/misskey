@@ -401,6 +401,24 @@ type AdminShowUsersRequest = operations['admin___show-users']['requestBody']['co
 type AdminShowUsersResponse = operations['admin___show-users']['responses']['200']['content']['application/json'];
 
 // @public (undocumented)
+type AdminSignupApplicationApproveRequest = operations['admin___signup-application___approve']['requestBody']['content']['application/json'];
+
+// @public (undocumented)
+type AdminSignupApplicationApproveResponse = operations['admin___signup-application___approve']['responses']['200']['content']['application/json'];
+
+// @public (undocumented)
+type AdminSignupApplicationListRequest = operations['admin___signup-application___list']['requestBody']['content']['application/json'];
+
+// @public (undocumented)
+type AdminSignupApplicationListResponse = operations['admin___signup-application___list']['responses']['200']['content']['application/json'];
+
+// @public (undocumented)
+type AdminSignupApplicationRejectRequest = operations['admin___signup-application___reject']['requestBody']['content']['application/json'];
+
+// @public (undocumented)
+type AdminSignupApplicationRejectResponse = operations['admin___signup-application___reject']['responses']['200']['content']['application/json'];
+
+// @public (undocumented)
 type AdminSuspendUserRequest = operations['admin___suspend-user']['requestBody']['content']['application/json'];
 
 // @public (undocumented)
@@ -1666,6 +1684,12 @@ declare namespace entities {
         AdminShowUserResponse,
         AdminShowUsersRequest,
         AdminShowUsersResponse,
+        AdminSignupApplicationApproveRequest,
+        AdminSignupApplicationApproveResponse,
+        AdminSignupApplicationListRequest,
+        AdminSignupApplicationListResponse,
+        AdminSignupApplicationRejectRequest,
+        AdminSignupApplicationRejectResponse,
         AdminSuspendUserRequest,
         AdminSystemWebhookCreateRequest,
         AdminSystemWebhookCreateResponse,
@@ -2145,6 +2169,13 @@ declare namespace entities {
         RolesUsersRequest,
         RolesUsersResponse,
         ServerInfoResponse,
+        SignupApplicationApplyRequest,
+        SignupApplicationApplyResponse,
+        SignupApplicationFormTokenResponse,
+        SignupApplicationRegisterRequest,
+        SignupApplicationRegisterResponse,
+        SignupApplicationStatusRequest,
+        SignupApplicationStatusResponse,
         StatsResponse,
         SwRegisterRequest,
         SwRegisterResponse,
@@ -2244,6 +2275,10 @@ declare namespace entities {
         Blocking,
         Hashtag,
         InviteCode,
+        SignupApplication,
+        SignupApplicationAnswer,
+        SignupApplicationFormField,
+        SignupApplicationStatus,
         Page,
         PageBlock,
         Channel,
@@ -2926,7 +2961,7 @@ type ModerationLog = {
 }[keyof ModerationLogPayloads]);
 
 // @public (undocumented)
-export const moderationLogTypes: readonly ["updateServerSettings", "suspend", "unsuspend", "updateUserNote", "addCustomEmoji", "updateCustomEmoji", "deleteCustomEmoji", "assignRole", "unassignRole", "createRole", "updateRole", "deleteRole", "clearQueue", "promoteQueue", "deleteDriveFile", "deleteNote", "createGlobalAnnouncement", "createUserAnnouncement", "updateGlobalAnnouncement", "updateUserAnnouncement", "deleteGlobalAnnouncement", "deleteUserAnnouncement", "resetPassword", "suspendRemoteInstance", "unsuspendRemoteInstance", "updateRemoteInstanceNote", "markSensitiveDriveFile", "unmarkSensitiveDriveFile", "resolveAbuseReport", "forwardAbuseReport", "updateAbuseReportNote", "createInvitation", "createAd", "updateAd", "deleteAd", "createAvatarDecoration", "updateAvatarDecoration", "deleteAvatarDecoration", "unsetMfa", "unsetUserAvatar", "unsetUserBanner", "createSystemWebhook", "updateSystemWebhook", "deleteSystemWebhook", "createAbuseReportNotificationRecipient", "updateAbuseReportNotificationRecipient", "deleteAbuseReportNotificationRecipient", "deleteAccount", "deletePage", "deleteFlash", "deleteGalleryPost", "deleteChatRoom", "updateProxyAccountDescription"];
+export const moderationLogTypes: readonly ["updateServerSettings", "suspend", "unsuspend", "updateUserNote", "addCustomEmoji", "updateCustomEmoji", "deleteCustomEmoji", "assignRole", "unassignRole", "createRole", "updateRole", "deleteRole", "clearQueue", "promoteQueue", "deleteDriveFile", "deleteNote", "createGlobalAnnouncement", "createUserAnnouncement", "updateGlobalAnnouncement", "updateUserAnnouncement", "deleteGlobalAnnouncement", "deleteUserAnnouncement", "resetPassword", "suspendRemoteInstance", "unsuspendRemoteInstance", "updateRemoteInstanceNote", "markSensitiveDriveFile", "unmarkSensitiveDriveFile", "resolveAbuseReport", "forwardAbuseReport", "updateAbuseReportNote", "createInvitation", "createAd", "updateAd", "deleteAd", "createAvatarDecoration", "updateAvatarDecoration", "deleteAvatarDecoration", "unsetMfa", "unsetUserAvatar", "unsetUserBanner", "createSystemWebhook", "updateSystemWebhook", "deleteSystemWebhook", "createAbuseReportNotificationRecipient", "updateAbuseReportNotificationRecipient", "deleteAbuseReportNotificationRecipient", "deleteAccount", "deletePage", "deleteFlash", "deleteGalleryPost", "deleteChatRoom", "updateProxyAccountDescription", "approveSignupApplication", "rejectSignupApplication"];
 
 // @public (undocumented)
 type MuteCreateRequest = operations['mute___create']['requestBody']['content']['application/json'];
@@ -3179,7 +3214,7 @@ type Notification_2 = components['schemas']['Notification'];
 type NotificationsCreateRequest = operations['notifications___create']['requestBody']['content']['application/json'];
 
 // @public (undocumented)
-export const notificationTypes: readonly ["note", "follow", "mention", "reply", "renote", "quote", "reaction", "pollEnded", "scheduledNotePosted", "scheduledNotePostFailed", "receiveFollowRequest", "followRequestAccepted", "app", "roleAssigned", "chatRoomInvitationReceived", "achievementEarned", "exportCompleted", "test", "login", "createToken"];
+export const notificationTypes: readonly ["note", "follow", "mention", "reply", "renote", "quote", "reaction", "pollEnded", "scheduledNotePosted", "scheduledNotePostFailed", "receiveFollowRequest", "followRequestAccepted", "app", "roleAssigned", "chatRoomInvitationReceived", "achievementEarned", "exportCompleted", "test", "login", "createToken", "signupApplicationReceived"];
 
 // @public (undocumented)
 export function nyaize(text: string): string;
@@ -3488,6 +3523,39 @@ type SigninWithPasskeyResponse = {
         finished: true;
     };
 };
+
+// @public (undocumented)
+type SignupApplication = components['schemas']['SignupApplication'];
+
+// @public (undocumented)
+type SignupApplicationAnswer = components['schemas']['SignupApplicationAnswer'];
+
+// @public (undocumented)
+type SignupApplicationApplyRequest = operations['signup-application___apply']['requestBody']['content']['application/json'];
+
+// @public (undocumented)
+type SignupApplicationApplyResponse = operations['signup-application___apply']['responses']['200']['content']['application/json'];
+
+// @public (undocumented)
+type SignupApplicationFormField = components['schemas']['SignupApplicationFormField'];
+
+// @public (undocumented)
+type SignupApplicationFormTokenResponse = operations['signup-application___form-token']['responses']['200']['content']['application/json'];
+
+// @public (undocumented)
+type SignupApplicationRegisterRequest = operations['signup-application___register']['requestBody']['content']['application/json'];
+
+// @public (undocumented)
+type SignupApplicationRegisterResponse = operations['signup-application___register']['responses']['200']['content']['application/json'];
+
+// @public (undocumented)
+type SignupApplicationStatus = components['schemas']['SignupApplicationStatus'];
+
+// @public (undocumented)
+type SignupApplicationStatusRequest = operations['signup-application___status']['requestBody']['content']['application/json'];
+
+// @public (undocumented)
+type SignupApplicationStatusResponse = operations['signup-application___status']['responses']['200']['content']['application/json'];
 
 // @public (undocumented)
 type SignupPendingRequest = {

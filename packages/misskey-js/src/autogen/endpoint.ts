@@ -120,6 +120,12 @@ import type {
 	AdminShowUserResponse,
 	AdminShowUsersRequest,
 	AdminShowUsersResponse,
+	AdminSignupApplicationApproveRequest,
+	AdminSignupApplicationApproveResponse,
+	AdminSignupApplicationListRequest,
+	AdminSignupApplicationListResponse,
+	AdminSignupApplicationRejectRequest,
+	AdminSignupApplicationRejectResponse,
 	AdminSuspendUserRequest,
 	AdminSystemWebhookCreateRequest,
 	AdminSystemWebhookCreateResponse,
@@ -601,6 +607,13 @@ import type {
 	RolesUsersRequest,
 	RolesUsersResponse,
 	ServerInfoResponse,
+	SignupApplicationApplyRequest,
+	SignupApplicationApplyResponse,
+	SignupApplicationFormTokenResponse,
+	SignupApplicationRegisterRequest,
+	SignupApplicationRegisterResponse,
+	SignupApplicationStatusRequest,
+	SignupApplicationStatusResponse,
 	StatsResponse,
 	SwRegisterRequest,
 	SwRegisterResponse,
@@ -762,6 +775,9 @@ export type Endpoints = {
 	'admin/show-moderation-logs': { req: AdminShowModerationLogsRequest; res: AdminShowModerationLogsResponse };
 	'admin/show-user': { req: AdminShowUserRequest; res: AdminShowUserResponse };
 	'admin/show-users': { req: AdminShowUsersRequest; res: AdminShowUsersResponse };
+	'admin/signup-application/approve': { req: AdminSignupApplicationApproveRequest; res: AdminSignupApplicationApproveResponse };
+	'admin/signup-application/list': { req: AdminSignupApplicationListRequest; res: AdminSignupApplicationListResponse };
+	'admin/signup-application/reject': { req: AdminSignupApplicationRejectRequest; res: AdminSignupApplicationRejectResponse };
 	'admin/suspend-user': { req: AdminSuspendUserRequest; res: EmptyResponse };
 	'admin/system-webhook/create': { req: AdminSystemWebhookCreateRequest; res: AdminSystemWebhookCreateResponse };
 	'admin/system-webhook/delete': { req: AdminSystemWebhookDeleteRequest; res: EmptyResponse };
@@ -1077,6 +1093,10 @@ export type Endpoints = {
 	'roles/show': { req: RolesShowRequest; res: RolesShowResponse };
 	'roles/users': { req: RolesUsersRequest; res: RolesUsersResponse };
 	'server-info': { req: EmptyRequest; res: ServerInfoResponse };
+	'signup-application/apply': { req: SignupApplicationApplyRequest; res: SignupApplicationApplyResponse };
+	'signup-application/form-token': { req: EmptyRequest; res: SignupApplicationFormTokenResponse };
+	'signup-application/register': { req: SignupApplicationRegisterRequest; res: SignupApplicationRegisterResponse };
+	'signup-application/status': { req: SignupApplicationStatusRequest; res: SignupApplicationStatusResponse };
 	'stats': { req: EmptyRequest; res: StatsResponse };
 	'sw/register': { req: SwRegisterRequest; res: SwRegisterResponse };
 	'sw/show-registration': { req: SwShowRegistrationRequest; res: SwShowRegistrationResponse };

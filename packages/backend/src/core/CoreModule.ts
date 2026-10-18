@@ -21,6 +21,7 @@ import { AccountUpdateService } from './AccountUpdateService.js';
 import { SensitiveMediaDetectionService } from './SensitiveMediaDetectionService.js';
 import { AnnouncementService } from './AnnouncementService.js';
 import { NiwaService } from './NiwaService.js';
+import { SignupApplicationService } from './SignupApplicationService.js';
 import { AntennaService } from './AntennaService.js';
 import { AchievementService } from './AchievementService.js';
 import { AvatarDecorationService } from './AvatarDecorationService.js';
@@ -115,6 +116,7 @@ import { GalleryPostEntityService } from './entities/GalleryPostEntityService.js
 import { HashtagEntityService } from './entities/HashtagEntityService.js';
 import { InstanceEntityService } from './entities/InstanceEntityService.js';
 import { InviteCodeEntityService } from './entities/InviteCodeEntityService.js';
+import { SignupApplicationEntityService } from './entities/SignupApplicationEntityService.js';
 import { ModerationLogEntityService } from './entities/ModerationLogEntityService.js';
 import { MutingEntityService } from './entities/MutingEntityService.js';
 import { RenoteMutingEntityService } from './entities/RenoteMutingEntityService.js';
@@ -268,6 +270,7 @@ const $GalleryPostEntityService: Provider = { provide: 'GalleryPostEntityService
 const $HashtagEntityService: Provider = { provide: 'HashtagEntityService', useExisting: HashtagEntityService };
 const $InstanceEntityService: Provider = { provide: 'InstanceEntityService', useExisting: InstanceEntityService };
 const $InviteCodeEntityService: Provider = { provide: 'InviteCodeEntityService', useExisting: InviteCodeEntityService };
+const $SignupApplicationEntityService: Provider = { provide: 'SignupApplicationEntityService', useExisting: SignupApplicationEntityService };
 const $ModerationLogEntityService: Provider = { provide: 'ModerationLogEntityService', useExisting: ModerationLogEntityService };
 const $MutingEntityService: Provider = { provide: 'MutingEntityService', useExisting: MutingEntityService };
 const $RenoteMutingEntityService: Provider = { provide: 'RenoteMutingEntityService', useExisting: RenoteMutingEntityService };
@@ -314,6 +317,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 	],
 	providers: [
 		NiwaService,
+		SignupApplicationService,
 		LoggerService,
 		AbuseReportService,
 		AbuseReportNotificationService,
@@ -422,6 +426,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 		HashtagEntityService,
 		InstanceEntityService,
 		InviteCodeEntityService,
+		SignupApplicationEntityService,
 		ModerationLogEntityService,
 		MutingEntityService,
 		RenoteMutingEntityService,
@@ -573,6 +578,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 		$HashtagEntityService,
 		$InstanceEntityService,
 		$InviteCodeEntityService,
+		$SignupApplicationEntityService,
 		$ModerationLogEntityService,
 		$MutingEntityService,
 		$RenoteMutingEntityService,
@@ -616,6 +622,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 	],
 	exports: [
 		NiwaService,
+		SignupApplicationService,
 		QueueModule,
 		LoggerService,
 		AbuseReportService,
@@ -724,6 +731,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 		HashtagEntityService,
 		InstanceEntityService,
 		InviteCodeEntityService,
+		SignupApplicationEntityService,
 		ModerationLogEntityService,
 		MutingEntityService,
 		RenoteMutingEntityService,
@@ -873,6 +881,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 		$HashtagEntityService,
 		$InstanceEntityService,
 		$InviteCodeEntityService,
+		$SignupApplicationEntityService,
 		$ModerationLogEntityService,
 		$MutingEntityService,
 		$RenoteMutingEntityService,

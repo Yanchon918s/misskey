@@ -6,6 +6,7 @@
 import { Entity, Column, PrimaryColumn, ManyToOne } from 'typeorm';
 import { id } from './util/id.js';
 import { MiUser } from './User.js';
+import type { SignupApplicationFormField } from './SignupApplication.js';
 
 @Entity('meta')
 export class MiMeta {
@@ -193,6 +194,20 @@ export class MiMeta {
 		default: false,
 	})
 	public emailRequiredForSignup: boolean;
+
+	/**
+	 * 承認制の登録。有効な間は申請フォームから申請を受け付け、承認された申請だけが登録できる。
+	 * 招待コードを持たない /api/signup は受け付けない (招待コードの経路はそのまま使える)。
+	 */
+	@Column('boolean', {
+		default: false,
+	})
+	public approvalRequiredForSignup: boolean;
+
+	@Column('jsonb', {
+		default: [],
+	})
+	public signupApplicationForm: SignupApplicationFormField[];
 
 	@Column('boolean', {
 		default: false,

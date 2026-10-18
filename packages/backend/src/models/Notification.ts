@@ -113,6 +113,11 @@ export type MiNotification = {
 	id: string;
 	createdAt: string;
 } | {
+	type: 'signupApplicationReceived';
+	id: string;
+	createdAt: string;
+	signupApplicationId: string;
+} | {
 	type: 'app';
 	id: string;
 	createdAt: string;

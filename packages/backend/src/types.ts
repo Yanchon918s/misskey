@@ -22,6 +22,7 @@
  * exportCompleted - エクスポートが完了
  * login - ログイン
  * createToken - トークン作成
+ * signupApplicationReceived - 登録の申請を受け付けた (モデレーター向け)
  * app - アプリ通知
  * test - テスト通知（サーバー側）
  */
@@ -44,6 +45,7 @@ export const notificationTypes = [
 	'exportCompleted',
 	'login',
 	'createToken',
+	'signupApplicationReceived',
 	'app',
 	'test',
 ] as const;
@@ -135,6 +137,8 @@ export const moderationLogTypes = [
 	'deleteGalleryPost',
 	'deleteChatRoom',
 	'updateProxyAccountDescription',
+	'approveSignupApplication',
+	'rejectSignupApplication',
 ] as const;
 
 export type ModerationLogPayloads = {
@@ -401,6 +405,12 @@ export type ModerationLogPayloads = {
 	updateProxyAccountDescription: {
 		before: string | null;
 		after: string | null;
+	};
+	approveSignupApplication: {
+		applicationId: string;
+	};
+	rejectSignupApplication: {
+		applicationId: string;
 	};
 };
 
