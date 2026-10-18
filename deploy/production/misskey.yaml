@@ -29,7 +29,7 @@ spec:
         app.kubernetes.io/component: app
         environment: production
       annotations:
-        ao9s.net/source-revision: "be2ce22c077675d9942d851935ab5c9ac4ee7024"
+        ao9s.net/source-revision: "bf939d7efbed40ae67ef9378ecd10167cbd2c434"
     spec:
       terminationGracePeriodSeconds: 60
       securityContext:
@@ -39,7 +39,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: misskey
-          image: ghcr.io/yanchon918s/misskey@sha256:11bd1ef5e998d571028a054fca667ac807c70d4443c59166c558b0ecfd77871e
+          image: ghcr.io/yanchon918s/misskey@sha256:9bc13767fbc21982fad8261a3a71b719493bb31698e9659cddb91f4831119d6c
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsNonRoot: true
