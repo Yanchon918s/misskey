@@ -428,17 +428,13 @@ export function getUserMenu(user: Misskey.entities.UserDetailed, router: Router 
 		});
 	}
 
-	if (user.host !== null) {
-		menuItems.push({ type: 'divider' });
-		if ($i) {
-			menuItems.push({
-				icon: 'ti ti-cloud-download',
-				text: i18n.ts.fetchRemoteNote,
-				caption: i18n.ts.fetchRemoteNoteDescription,
-				action: () => lookupNote(router),
-			});
-		}
-		menuItems.push({
+	if ($i != null && user.host !== null) {
+		menuItems.push({ type: 'divider' }, {
+			icon: 'ti ti-cloud-download',
+			text: i18n.ts.fetchRemoteNote,
+			caption: i18n.ts.fetchRemoteNoteDescription,
+			action: () => lookupNote(router),
+		}, {
 			icon: 'ti ti-refresh',
 			text: i18n.ts.updateRemoteUser,
 			action: userInfoUpdate,
