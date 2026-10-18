@@ -9,6 +9,13 @@ import type { MiMeta } from '@/models/Meta.js';
 import { ModerationLogService } from '@/core/ModerationLogService.js';
 import { Endpoint } from '@/server/api/endpoint-base.js';
 import { MetaService } from '@/core/MetaService.js';
+import {
+	SIGNUP_APPLICATION_MAX_ANSWER_LENGTH,
+	SIGNUP_APPLICATION_MAX_FORM_FIELDS,
+	SIGNUP_APPLICATION_MAX_LABEL_LENGTH,
+	removeUnstorableCharacters,
+} from '@/core/SignupApplicationService.js';
+import { signupApplicationFormFieldTypes } from '@/models/SignupApplication.js';
 
 export const meta = {
 	tags: ['admin'],
@@ -84,6 +91,22 @@ export const paramDef = {
 		cacheRemoteFiles: { type: 'boolean' },
 		cacheRemoteSensitiveFiles: { type: 'boolean' },
 		emailRequiredForSignup: { type: 'boolean' },
+		approvalRequiredForSignup: { type: 'boolean' },
+		signupApplicationForm: {
+			type: 'array',
+			maxItems: SIGNUP_APPLICATION_MAX_FORM_FIELDS,
+			items: {
+				type: 'object',
+				properties: {
+					// 空白だけのラベルは保存させない
+					label: { type: 'string', minLength: 1, maxLength: SIGNUP_APPLICATION_MAX_LABEL_LENGTH, pattern: /\S/.source },
+					type: { type: 'string', enum: signupApplicationFormFieldTypes },
+					required: { type: 'boolean' },
+					maxLength: { type: 'integer', minimum: 1, maximum: SIGNUP_APPLICATION_MAX_ANSWER_LENGTH },
+				},
+				required: ['label', 'type', 'required'],
+			},
+		},
 		enableHcaptcha: { type: 'boolean' },
 		hcaptchaSiteKey: { type: 'string', nullable: true },
 		hcaptchaSecretKey: { type: 'string', nullable: true },
@@ -377,6 +400,20 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 
 			if (ps.emailRequiredForSignup !== undefined) {
 				set.emailRequiredForSignup = ps.emailRequiredForSignup;
+			}
+
+			if (ps.approvalRequiredForSignup !== undefined) {
+				set.approvalRequiredForSignup = ps.approvalRequiredForSignup;
+			}
+
+			if (Array.isArray(ps.signupApplicationForm)) {
+				set.signupApplicationForm = ps.signupApplicationForm.map(field => ({
+					// jsonb に保存できない文字が混じると保存自体が失敗するので取り除く
+					label: removeUnstorableCharacters(field.label).trim(),
+					type: field.type,
+					required: field.required,
+					...(field.maxLength != null ? { maxLength: field.maxLength } : {}),
+				}));
 			}
 
 			if (ps.enableHcaptcha !== undefined) {
@@ -801,6 +838,13 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 
 			if (ps.showRoleBadgesOfRemoteUsers !== undefined) {
 				set.showRoleBadgesOfRemoteUsers = ps.showRoleBadgesOfRemoteUsers;
+			}
+
+			// 承認制の間は、招待コードを持たない登録を閉じたままにする。
+			// 承認制を知らない版 (上流の Misskey や、この機能を入れる前の image) へ戻しても、
+			// 登録が誰にでも開いた状態にはならない。
+			if (set.approvalRequiredForSignup ?? this.serverSettings.approvalRequiredForSignup) {
+				set.disableRegistration = true;
 			}
 
 			const before = await this.metaService.fetch(true);

@@ -11072,6 +11072,14 @@ export interface Locale extends ILocale {
          * 心当たりがない場合は「{text}」を通じてアクセストークンを削除してください。
          */
         "createTokenDescription": ParameterizedString<"text">;
+        /**
+         * 登録の申請がありました
+         */
+        "signupApplicationReceived": string;
+        /**
+         * 内容を確認して、承認するか却下してください。
+         */
+        "signupApplicationReceivedDescription": string;
         "_types": {
             /**
              * すべて
@@ -11149,6 +11157,10 @@ export interface Locale extends ILocale {
              * アクセストークンの作成
              */
             "createToken": string;
+            /**
+             * 登録の申請を受け付けた
+             */
+            "signupApplicationReceived": string;
             /**
              * 通知のテスト
              */
@@ -11728,6 +11740,14 @@ export interface Locale extends ILocale {
          * プロキシアカウントの説明を更新
          */
         "updateProxyAccountDescription": string;
+        /**
+         * 登録の申請を承認
+         */
+        "approveSignupApplication": string;
+        /**
+         * 登録の申請を却下
+         */
+        "rejectSignupApplication": string;
     };
     "_fileViewer": {
         /**
@@ -13525,5 +13545,341 @@ export interface Locale extends ILocale {
          * 次の水やり: {time}
          */
         "nextWatering": ParameterizedString<"time">;
+    };
+    "_signupApplication": {
+        /**
+         * 登録の申請
+         */
+        "title": string;
+        /**
+         * このサーバーの登録は承認制です。申請すると管理者が確認し、承認されると登録できます。
+         */
+        "approvalRequired": string;
+        /**
+         * このサーバーでは、登録に申請と承認が必要です。申請するとクレームコードが発行されます。結果の確認と登録に必要なので控えてください。
+         */
+        "dialogDescription": string;
+        /**
+         * 登録を申請する
+         */
+        "apply": string;
+        /**
+         * 招待コードをお持ちの場合は、申請せずに登録できます。
+         */
+        "haveInvitationCode": string;
+        /**
+         * 招待コードで登録する
+         */
+        "useInvitationCode": string;
+        /**
+         * 申請するとクレームコードが1度だけ表示されます。結果の確認と登録に必要なので、必ず控えてください。
+         */
+        "pageDescription": string;
+        /**
+         * このサーバーは申請項目を設定していません。そのまま申請できます。
+         */
+        "noFormFields": string;
+        /**
+         * {current} / {max}文字
+         */
+        "answerLength": ParameterizedString<"current" | "max">;
+        /**
+         * フォームを開いた直後は送信できません。少し待ってから送信してください。
+         */
+        "waitingForForm": string;
+        /**
+         * フォームの準備に失敗しました。そのまま送信もできますが、うまくいかない場合は読み込み直してください。
+         */
+        "formTokenFailed": string;
+        /**
+         * クレームコード
+         */
+        "claimCode": string;
+        /**
+         * このコードを控えてください。二度と表示されません。
+         */
+        "claimCodeIssued": string;
+        /**
+         * 登録の状況を確認したり、承認後に登録したりするのに必要です。失くした場合は申請し直してください。
+         */
+        "claimCodeIssuedDescription": string;
+        /**
+         * 控えました
+         */
+        "savedClaimCode": string;
+        /**
+         * コードで状況を確認する
+         */
+        "checkStatusWithCode": string;
+        /**
+         * 状況を確認する
+         */
+        "checkStatus": string;
+        /**
+         * 申請を受け付けました。審査までしばらくお待ちください。結果はこのページでコードを入力すると確認できます。
+         */
+        "pendingDescription": string;
+        /**
+         * この申請は{date}まで有効です。
+         */
+        "validUntil": ParameterizedString<"date">;
+        /**
+         * 申請が承認されました。アカウントを作成してください。
+         */
+        "approvedDescription": string;
+        /**
+         * この申請は承認されませんでした。
+         */
+        "rejectedDescription": string;
+        /**
+         * 申請の期限が切れました。
+         */
+        "expiredDescription": string;
+        /**
+         * この申請では既に登録が完了しています。
+         */
+        "completedDescription": string;
+        /**
+         * もう一度申請する
+         */
+        "applyAgain": string;
+        /**
+         * 確認メールを送ります。リンクを開くと登録が完了します。
+         */
+        "emailConfirmationCaption": string;
+        /**
+         * {email}に確認メールを送りました。リンクを開くと登録が完了します。
+         */
+        "emailConfirmationSent": ParameterizedString<"email">;
+        /**
+         * 届かない場合は迷惑メールフォルダを確認してください。アドレスを間違えた場合は、同じクレームコードでもう一度登録してください。やり直すと前のリンクは無効になります。
+         */
+        "emailConfirmationNote": string;
+        /**
+         * 登録の入力に戻る
+         */
+        "backToRegistration": string;
+        /**
+         * アカウントを作成しました。
+         */
+        "accountCreated": string;
+        "_status": {
+            /**
+             * 審査待ち
+             */
+            "pending": string;
+            /**
+             * 承認済み（未登録）
+             */
+            "approved": string;
+            /**
+             * 却下
+             */
+            "rejected": string;
+            /**
+             * 期限切れ
+             */
+            "expired": string;
+            /**
+             * 登録済み
+             */
+            "completed": string;
+        };
+        "_errors": {
+            /**
+             * このサーバーは現在、承認制の登録を受け付けていません。
+             */
+            "unavailable": string;
+            /**
+             * そのコードの申請は見つかりませんでした。入力を確認してください。
+             */
+            "noSuchApplication": string;
+            /**
+             * この申請は承認されていないか、既に使われています。
+             */
+            "notApproved": string;
+            /**
+             * 必須の項目が入力されていません。
+             */
+            "answerRequired": string;
+            /**
+             * 入力が長すぎる項目があります。
+             */
+            "answerTooLong": string;
+            /**
+             * 使用できない文字が含まれている項目があります。
+             */
+            "invalidAnswer": string;
+            /**
+             * 申請フォームが変更されました。ページを再読み込みしてやり直してください。
+             */
+            "formChanged": string;
+            /**
+             * CAPTCHAの確認に失敗しました。もう一度お試しください。
+             */
+            "captchaFailed": string;
+            /**
+             * フォームの有効期限が切れました。もう一度送信してください。
+             */
+            "formTokenInvalid": string;
+            /**
+             * 送信が早すぎます。少し待ってからもう一度送信してください。
+             */
+            "formTokenTooSoon": string;
+            /**
+             * メールアドレスを入力してください。
+             */
+            "emailRequired": string;
+            /**
+             * そのメールアドレスは使用できません。
+             */
+            "emailUnavailable": string;
+            /**
+             * そのユーザー名は使用できません。
+             */
+            "invalidUsername": string;
+            /**
+             * そのパスワードは使用できません。
+             */
+            "invalidPassword": string;
+            /**
+             * そのユーザー名は既に使われているか、使用できません。
+             */
+            "usernameUnavailable": string;
+            /**
+             * 処理に失敗しました。時間をおいてお試しください。
+             */
+            "unknown": string;
+        };
+        "_admin": {
+            /**
+             * 登録を承認制にする
+             */
+            "approvalRequiredForSignup": string;
+            /**
+             * 申請フォームから申請を受け付け、承認した相手だけが登録できるようにします。招待コードによる登録はそのまま使えます。
+             */
+            "approvalRequiredForSignupDescription": string;
+            /**
+             * 承認制の間は、招待コードを持たない登録は閉じたままになります。承認制を解除しても登録は自動では開放されません。
+             */
+            "approvalRequiredForSignupNote": string;
+            /**
+             * 承認制の間は、招待コードを持たない登録を開放できません。
+             */
+            "openRegistrationDisabledWhileApproval": string;
+            /**
+             * 承認された申請者が登録するときも、確認メールを送ります。
+             */
+            "emailRequiredNote": string;
+            /**
+             * 申請フォームの項目
+             */
+            "form": string;
+            /**
+             * 申請者に尋ねる項目を設定します。項目を追加しないと、申請者は何も書かずに申請します。回答は申請時の項目名と一緒に保存されます。
+             */
+            "formDescription": string;
+            /**
+             * {n}項目
+             */
+            "fieldCount": ParameterizedString<"n">;
+            /**
+             * 項目名
+             */
+            "fieldLabel": string;
+            /**
+             * 入力欄
+             */
+            "fieldType": string;
+            /**
+             * 1行
+             */
+            "fieldTypeText": string;
+            /**
+             * 複数行
+             */
+            "fieldTypeTextarea": string;
+            /**
+             * 必須にする
+             */
+            "fieldRequired": string;
+            /**
+             * 最大文字数
+             */
+            "fieldMaxLength": string;
+            /**
+             * 空欄の場合は{default}文字です。最大{max}文字まで設定できます。
+             */
+            "fieldMaxLengthDescription": ParameterizedString<"default" | "max">;
+            /**
+             * 項目を追加
+             */
+            "addField": string;
+            /**
+             * この項目を削除
+             */
+            "removeField": string;
+            /**
+             * 項目は{n}個までです。
+             */
+            "maxFieldsReached": ParameterizedString<"n">;
+            /**
+             * 登録申請
+             */
+            "applications": string;
+            /**
+             * 審査待ちの登録申請があります。
+             */
+            "thereArePendingApplications": string;
+            /**
+             * 該当する申請はありません。
+             */
+            "noApplications": string;
+            /**
+             * 処理済み
+             */
+            "processed": string;
+            /**
+             * 承認
+             */
+            "approve": string;
+            /**
+             * 却下
+             */
+            "reject": string;
+            /**
+             * この申請を承認しますか？
+             */
+            "approveConfirm": string;
+            /**
+             * この申請を却下しますか？
+             */
+            "rejectConfirm": string;
+            /**
+             * 申請日時
+             */
+            "appliedAt": string;
+            /**
+             * 期限
+             */
+            "expiresAt": string;
+            /**
+             * 審査日時
+             */
+            "processedAt": string;
+            /**
+             * 審査した人
+             */
+            "processedBy": string;
+            /**
+             * 登録したアカウント
+             */
+            "usedBy": string;
+            /**
+             * （未回答）
+             */
+            "noAnswer": string;
+        };
     };
 }

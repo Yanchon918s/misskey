@@ -94,6 +94,19 @@ export const packedMetaLiteSchema = {
 			type: 'boolean',
 			optional: false, nullable: false,
 		},
+		approvalRequiredForSignup: {
+			type: 'boolean',
+			optional: false, nullable: false,
+		},
+		signupApplicationForm: {
+			type: 'array',
+			optional: false, nullable: false,
+			items: {
+				type: 'object',
+				optional: false, nullable: false,
+				ref: 'SignupApplicationFormField',
+			},
+		},
 		enableHcaptcha: {
 			type: 'boolean',
 			optional: false, nullable: false,

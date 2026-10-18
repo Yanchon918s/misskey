@@ -37,6 +37,7 @@ export const notificationTypes = [
 	'test',
 	'login',
 	'createToken',
+	'signupApplicationReceived',
 ] as const;
 
 export const noteVisibilities = ['public', 'home', 'followers', 'specified'] as const;
@@ -192,6 +193,8 @@ export const moderationLogTypes = [
 	'deleteGalleryPost',
 	'deleteChatRoom',
 	'updateProxyAccountDescription',
+	'approveSignupApplication',
+	'rejectSignupApplication',
 ] as const;
 
 export const rolePolicies = [
@@ -541,5 +544,11 @@ export type ModerationLogPayloads = {
 	updateProxyAccountDescription: {
 		before: string | null;
 		after: string | null;
-	}
+	};
+	approveSignupApplication: {
+		applicationId: string;
+	};
+	rejectSignupApplication: {
+		applicationId: string;
+	};
 };

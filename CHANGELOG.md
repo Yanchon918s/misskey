@@ -7,6 +7,8 @@
 - Enhance: アンテナとリストを名前順で表示するように
 - Enhance: About画面にビルド識別子とソースリビジョンを表示するように
 - Enhance: 非ログイン時のトップページにローカルタイムラインを表示しないように
+- Feat: 新規登録の承認制に対応。申請ページ（管理者が定義した項目への回答、クレームコードによる状況確認と承認後の登録）と、審査画面・申請フォームの項目設定を追加  
+  (Based on https://github.com/shiroha-a/misskey-ts `mk-2026.10.0` 14f28f5708, 0aa6df556a, e560f90898, ea8ca0ce94, d6626d2c10, 363b0b26c9, 303bf73558, c8ecc31a07, d6407a1729, f488a3434b, 71a0479d05, 25be7c5107, b611cb8e00, ac7456f394, 4fe1549d3d)
 
 ### Server
 - Feat: ステータスメッセージの更新APIと、1人1日1回の水やりを管理するNIWA APIを追加
@@ -15,6 +17,8 @@
 - Enhance: 連合への送信をロールポリシーで制限できるようになりました
 - Enhance: Dockerイメージへビルド識別子とソースリビジョンを埋め込むように
 - Enhance: 新規ユーザーはクローラーによるインデックスをデフォルトで拒否するように
+- Feat: 新規登録の承認制を追加（既定は無効）。申請は承認されるまでアカウントを作らない別テーブル `signup_application` に置き、承認後にクレームコードで登録する。審査待ちはモデレーターへ通知し、審査はモデレーションログに残す。承認制の間は招待コードのない `/api/signup` を受け付けない  
+  (Based on the design of https://github.com/Elythia-Network/elythia migrations 000075〜000079 and `internal/core/signupapplication`)
 
 ## 2026.10.0
 

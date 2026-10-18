@@ -31,4 +31,14 @@ export class MiUserPending {
 		length: 128,
 	})
 	public password: string;
+
+	/**
+	 * 承認制の登録でメール確認を挟んだときの申請。確認が済んだ時点で申請を完了にする。
+	 */
+	@Index('IDX_user_pending_signupApplicationId')
+	@Column({
+		...id(),
+		nullable: true,
+	})
+	public signupApplicationId: string | null;
 }

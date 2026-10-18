@@ -14,6 +14,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 				<div class="_gaps_s">
 					<MkInfo v-if="thereIsUnresolvedAbuseReport" warn>{{ i18n.ts.thereIsUnresolvedAbuseReportWarning }} <MkA to="/admin/abuses" class="_link">{{ i18n.ts.check }}</MkA></MkInfo>
+					<MkInfo v-if="thereArePendingSignupApplications" warn>{{ i18n.ts._signupApplication._admin.thereArePendingApplications }} <MkA to="/admin/signup-applications" class="_link">{{ i18n.ts.check }}</MkA></MkInfo>
 					<MkInfo v-if="noMaintainerInformation" warn>{{ i18n.ts.noMaintainerInformationWarning }} <MkA to="/admin/settings" class="_link">{{ i18n.ts.configure }}</MkA></MkInfo>
 					<MkInfo v-if="noInquiryUrl" warn>{{ i18n.ts.noInquiryUrlWarning }} <MkA to="/admin/settings" class="_link">{{ i18n.ts.configure }}</MkA></MkInfo>
 					<MkInfo v-if="noBotProtection" warn>{{ i18n.ts.noBotProtectionWarning }} <MkA to="/admin/security" class="_link">{{ i18n.ts.configure }}</MkA></MkInfo>
@@ -67,10 +68,12 @@ const view = ref(null);
 const el = ref<HTMLDivElement | null>(null);
 const pageProps = ref({});
 const noMaintainerInformation = computed(() => isEmpty(instance.maintainerName) || isEmpty(instance.maintainerEmail));
-const noBotProtection = computed(() => !instance.disableRegistration && !instance.enableHcaptcha && !instance.enableRecaptcha && !instance.enableTurnstile && !instance.enableMcaptcha);
+// 承認制の申請フォームは誰でも送れるので、登録を閉じていても bot 対策が要る
+const noBotProtection = computed(() => (!instance.disableRegistration || instance.approvalRequiredForSignup) && !instance.enableHcaptcha && !instance.enableRecaptcha && !instance.enableTurnstile && !instance.enableMcaptcha);
 const noEmailServer = computed(() => !instance.enableEmail);
 const noInquiryUrl = computed(() => isEmpty(instance.inquiryUrl));
 const thereIsUnresolvedAbuseReport = ref(false);
+const thereArePendingSignupApplications = ref(false);
 const currentPage = computed(() => router.currentRef.value.child);
 
 misskeyApi('admin/abuse-user-reports', {
@@ -79,6 +82,15 @@ misskeyApi('admin/abuse-user-reports', {
 }).then(reports => {
 	if (reports.length > 0) thereIsUnresolvedAbuseReport.value = true;
 });
+
+if (instance.approvalRequiredForSignup) {
+	misskeyApi('admin/signup-application/list', {
+		status: 'pending',
+		limit: 1,
+	}).then(applications => {
+		if (applications.length > 0) thereArePendingSignupApplications.value = true;
+	});
+}
 
 const NARROW_THRESHOLD = 600;
 const ro = new ResizeObserver((entries, observer) => {
@@ -116,7 +128,13 @@ const menuDef = computed<SuperMenuDef[]>(() => [{
 		text: i18n.ts.invite,
 		to: '/admin/invites',
 		active: currentPage.value?.route.name === 'invites',
-	}, {
+	}, ...(instance.approvalRequiredForSignup ? [{
+		// 承認制を使っていないサーバーのメニューに、開いても空の項目を並べない
+		icon: 'ti ti-user-check',
+		text: i18n.ts._signupApplication._admin.applications,
+		to: '/admin/signup-applications',
+		active: currentPage.value?.route.name === 'signup-applications',
+	}] : []), {
 		icon: 'ti ti-badges',
 		text: i18n.ts.roles,
 		to: '/admin/roles',

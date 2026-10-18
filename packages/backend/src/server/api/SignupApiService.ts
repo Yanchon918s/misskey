@@ -14,6 +14,7 @@ import { IdService } from '@/core/IdService.js';
 import { SignupService } from '@/core/SignupService.js';
 import { UserEntityService } from '@/core/entities/UserEntityService.js';
 import { EmailService } from '@/core/EmailService.js';
+import { SignupApplicationService } from '@/core/SignupApplicationService.js';
 import { MiLocalUser } from '@/models/User.js';
 import { FastifyReplyError } from '@/misc/fastify-reply-error.js';
 import { bindThis } from '@/decorators.js';
@@ -54,6 +55,7 @@ export class SignupApiService {
 		private signupService: SignupService,
 		private signinService: SigninService,
 		private emailService: EmailService,
+		private signupApplicationService: SignupApplicationService,
 	) {
 	}
 
@@ -117,6 +119,13 @@ export class SignupApiService {
 		const invitationCode = body['invitationCode'];
 		const emailAddress = body['emailAddress'];
 
+		// 承認制の間は、招待コードを持たない登録を受け付けない (申請と承認を経て signup-application/register から登録する)。
+		// 招待コードの経路はそのまま使える。テスト時も無効にしない。
+		if (this.meta.approvalRequiredForSignup && (invitationCode == null || typeof invitationCode !== 'string')) {
+			reply.code(403);
+			return;
+		}
+
 		if (this.meta.emailRequiredForSignup) {
 			if (emailAddress == null || typeof emailAddress !== 'string') {
 				reply.code(400);
@@ -132,8 +141,8 @@ export class SignupApiService {
 
 		let ticket: MiRegistrationTicket | null = null;
 
-		// テスト時はこの機構は障害となるため無効にする
-		if (process.env.NODE_ENV !== 'test' && this.meta.disableRegistration) {
+		// テスト時はこの機構は障害となるため無効にする (承認制の間は、上で招待コードを要求した以上テスト時も検証する)
+		if ((process.env.NODE_ENV !== 'test' && this.meta.disableRegistration) || this.meta.approvalRequiredForSignup) {
 			if (invitationCode == null || typeof invitationCode !== 'string') {
 				reply.code(400);
 				return;
@@ -347,10 +356,28 @@ export class SignupApiService {
 				throw new FastifyReplyError(400, 'EXPIRED');
 			}
 
-			const { account } = await this.signupService.signup({
-				username: pendingUser.username,
-				passwordHash: pendingUser.password,
-			});
+			// 承認制の登録でメールの確認を挟んだ場合は、ここで申請を確保する。
+			// 確保は 1 回しか通らないので、1 つの承認から作られるアカウントは 1 つだけになる。
+			// 承認済みの申請者が確認待ちの間に承認制が無効になっても、確認リンク (30分) からの登録は完了させる。
+			const signupApplicationId = pendingUser.signupApplicationId;
+			if (signupApplicationId != null && !await this.signupApplicationService.claimForRegistration(signupApplicationId)) {
+				throw new FastifyReplyError(400, 'SIGNUP_APPLICATION_NOT_APPROVED');
+			}
+
+			let account: Awaited<ReturnType<SignupService['signup']>>['account'];
+			try {
+				({ account } = await this.signupService.signup({
+					username: pendingUser.username,
+					passwordHash: pendingUser.password,
+				}));
+			} catch (err) {
+				if (signupApplicationId != null) await this.signupApplicationService.releaseRegistration(signupApplicationId);
+				throw err;
+			}
+
+			if (signupApplicationId != null) {
+				await this.signupApplicationService.completeRegistration(signupApplicationId, account.id);
+			}
 
 			this.userPendingsRepository.delete({
 				id: pendingUser.id,

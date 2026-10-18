@@ -969,6 +969,39 @@ declare module '../api.js' {
     /**
      * No description provided.
      * 
+     * **Credential required**: *Yes* / **Permission**: *write:admin:invite-codes*
+     */
+    request<E extends 'admin/signup-application/approve', P extends Endpoints[E]['req']>(
+      endpoint: E,
+      params: P,
+      credential?: string | null,
+    ): Promise<SwitchCaseResponseType<E, P>>;
+
+    /**
+     * No description provided.
+     * 
+     * **Credential required**: *Yes* / **Permission**: *read:admin:invite-codes*
+     */
+    request<E extends 'admin/signup-application/list', P extends Endpoints[E]['req']>(
+      endpoint: E,
+      params: P,
+      credential?: string | null,
+    ): Promise<SwitchCaseResponseType<E, P>>;
+
+    /**
+     * No description provided.
+     * 
+     * **Credential required**: *Yes* / **Permission**: *write:admin:invite-codes*
+     */
+    request<E extends 'admin/signup-application/reject', P extends Endpoints[E]['req']>(
+      endpoint: E,
+      params: P,
+      credential?: string | null,
+    ): Promise<SwitchCaseResponseType<E, P>>;
+
+    /**
+     * No description provided.
+     * 
      * **Credential required**: *Yes* / **Permission**: *write:admin:suspend-user*
      */
     request<E extends 'admin/suspend-user', P extends Endpoints[E]['req']>(
@@ -4468,6 +4501,50 @@ declare module '../api.js' {
      * **Credential required**: *No*
      */
     request<E extends 'server-info', P extends Endpoints[E]['req']>(
+      endpoint: E,
+      params: P,
+      credential?: string | null,
+    ): Promise<SwitchCaseResponseType<E, P>>;
+
+    /**
+     * Apply for an account on a server that requires approval for signup. The claim code in the response is shown only once.
+     * 
+     * **Credential required**: *No*
+     */
+    request<E extends 'signup-application/apply', P extends Endpoints[E]['req']>(
+      endpoint: E,
+      params: P,
+      credential?: string | null,
+    ): Promise<SwitchCaseResponseType<E, P>>;
+
+    /**
+     * Issue a token that has to be sent with signup-application/apply when no captcha is enabled. Returns an empty token when it is not required.
+     * 
+     * **Credential required**: *No*
+     */
+    request<E extends 'signup-application/form-token', P extends Endpoints[E]['req']>(
+      endpoint: E,
+      params: P,
+      credential?: string | null,
+    ): Promise<SwitchCaseResponseType<E, P>>;
+
+    /**
+     * Create an account from an approved signup application. When email is required for signup, a confirmation link is sent instead and the account is created when the link is opened.
+     * 
+     * **Credential required**: *No*
+     */
+    request<E extends 'signup-application/register', P extends Endpoints[E]['req']>(
+      endpoint: E,
+      params: P,
+      credential?: string | null,
+    ): Promise<SwitchCaseResponseType<E, P>>;
+
+    /**
+     * Show the state of the signup application that the claim code stands for.
+     * 
+     * **Credential required**: *No*
+     */
+    request<E extends 'signup-application/status', P extends Endpoints[E]['req']>(
       endpoint: E,
       params: P,
       credential?: string | null,
