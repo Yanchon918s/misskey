@@ -13809,9 +13809,9 @@ export interface Locale extends ILocale {
              */
             "fieldMaxLength": string;
             /**
-             * 空欄の場合は{default}文字です。最大{max}文字まで設定できます。
+             * 空欄の場合は{defaultLength}文字です。最大{max}文字まで設定できます。
              */
-            "fieldMaxLengthDescription": ParameterizedString<"default" | "max">;
+            "fieldMaxLengthDescription": ParameterizedString<"defaultLength" | "max">;
             /**
              * 項目を追加
              */
