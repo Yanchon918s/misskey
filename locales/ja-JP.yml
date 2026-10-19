@@ -3696,7 +3696,7 @@ _signupApplication:
     fieldTypeTextarea: "複数行"
     fieldRequired: "必須にする"
     fieldMaxLength: "最大文字数"
-    fieldMaxLengthDescription: "空欄の場合は{default}文字です。最大{max}文字まで設定できます。"
+    fieldMaxLengthDescription: "空欄の場合は{defaultLength}文字です。最大{max}文字まで設定できます。"
     addField: "項目を追加"
     removeField: "この項目を削除"
     maxFieldsReached: "項目は{n}個までです。"

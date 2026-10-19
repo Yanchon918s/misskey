@@ -52,7 +52,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 							</MkSelect>
 							<MkInput v-model="field.maxLength" type="number" :min="1" :max="maxAnswerLength">
 								<template #label>{{ i18n.ts._signupApplication._admin.fieldMaxLength }}</template>
-								<template #caption>{{ i18n.tsx._signupApplication._admin.fieldMaxLengthDescription({ default: defaultAnswerLength, max: maxAnswerLength }) }}</template>
+								<template #caption>{{ i18n.tsx._signupApplication._admin.fieldMaxLengthDescription({ defaultLength: defaultAnswerLength, max: maxAnswerLength }) }}</template>
 							</MkInput>
 							<MkSwitch v-model="field.required">
 								<template #label>{{ i18n.ts._signupApplication._admin.fieldRequired }}</template>
