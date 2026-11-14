@@ -17,7 +17,7 @@
 3. GitHub-hosted runnerが`linux/amd64` imageをbuildし、SBOMとprovenanceを付けて`ghcr.io/yanchon918s/misskey`へpushする。
 4. build digestとsource revisionを`ao9s/deploy`の`deploy/production/misskey.yaml`へcommitする。
 5. K3sのFlux source-controller / kustomize-controllerが公開deploy branchをpollし、namespace `misskey-preview`のDeployment `misskey-preview`だけをserver-side applyする。
-6. Kubernetesのstartup/readiness/liveness probeが成功したPodだけをService対象にする。`ao9s/deploy`の現行設定はquotaに合わせて`maxSurge: 0` / `maxUnavailable: 1`となっているため、1 Pod構成では入れ替え時に停止時間がある。
+6. Kubernetesのstartup/readiness/liveness probeが成功したPodだけをService対象にする。本番側のFlux Kustomizationは、fork内manifestを1 replica・`Recreate`へ補正するため、入れ替え時に停止時間がある。
 
 Database migrationが新旧Podで同時利用できない上流更新は、この自動経路へ直接入れない。release note、migration、backup、rollback pointを確認してmaintenance手順で更新する。
 
@@ -32,6 +32,25 @@ Database migrationが新旧Podで同時利用できない上流更新は、こ�
 - 更新を戻す場合、旧imageではNIWAも再び有効になる。追加列の削除は新しい設定値を失うため、DBの `down` を機械的に実行しない。特にmetaの既定値を戻すmigrationは設定ファイルを参照するため、旧forkの既定値と一致するかを確認する。
 
 上流のメモリ削減と不要なデータ取得の修正を含むが、本番での改善幅は未測定。反映前後の同程度の負荷で、Podのメモリ使用量、タイムラインAPIの応答時間、PostgreSQLの遅いクエリ、配送キューの滞留を比較して次の改善対象を決める。
+
+### ローカル検証（2026-11-15）
+
+本番ソース `b45a3e7b36202aa59f4e2ad4a6fe8c04065aaefc` を起点に、WSL Ubuntu、Node.js 26.13.1、pnpm 12.17.0、PostgreSQL 18、Redis 7、Meilisearch 1.3.4で検証した。本番環境・実データへの変更は行っていない。
+
+| 結果 | 検証 |
+| --- | --- |
+| PASS | `pnpm install --frozen-lockfile`、`pnpm build`、`pnpm lint`、API・i18n生成。最後のテスト修正後もbackendの型検査を再実行 |
+| PASS | frontend unit 176件（保存済NIWAウィジェットの通常表示・編集画面を含む） |
+| PASS | backend unitは全体実行で918件成功・2件skip。残ったBubbleTimelineChannelのモックを修正し、対象1件の再実行に成功 |
+| PASS | backend結合テスト8ファイル・812件成功、1件skip、10件todo。登録承認・投稿・各タイムライン・ストリーミング・廃止NIWA APIの404など |
+| PASS | `pnpm e2e` のChromium 13件。初期設定・登録・ログイン・投稿・画面遷移 |
+| PASS | Dockerfileからlinux/amd64イメージをビルドし、既定の起動スクリプトで2台を起動。連合テスト9ファイル・93件成功、13件skip。ローカル既存環境とのIP帯の重複とテスト用TLS鍵の読取権限を、隔離したテスト設定側で調整 |
+| PASS | 空DBへのmigrationと `check-migrations`。旧forkのDBを別途再現し、NIWA・登録申請の既存行を保持したまま4件のupを実行。テスト用設定でdown/upも確認し、pending DDLは0件 |
+| PASS | 既存migration 350件が更新前と一致。追加migration・補助ファイル5件が上流タグと一致。API・Vueのレビューで指摘なし |
+| PASS | `check-shipping.mjs --base HEAD` の変更ファイルlintとSPDX |
+| FAIL（上流取り込み） | 同scriptのlocale判定は、日本語以外の27ファイルを変更として検出。各ファイルを共通祖先・旧fork・上流タグの3-way自動マージ結果と照合し、手動変更がないことを別途確認 |
+| BASELINE | `git diff --check` は上流CHANGELOGにある空白・インデントを検出。今回の独自変更には該当なし |
+| SKIPPED | この表はマージ前の検証結果。本番反映後の稼働確認と、同程度の負荷での性能比較は別途行う |
 
 ## AGPLの公開導線
 

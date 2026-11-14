@@ -14,7 +14,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<MkButton inline @click="emit('exit')">{{ i18n.ts.close }}</MkButton>
 		</header>
 		<MkDraggable
-			:modelValue="props.widgets"
+			:modelValue="availableWidgets"
 			direction="vertical"
 			withGaps
 			group="MkWidgets"
@@ -71,7 +71,9 @@ const _widgetDefs = computed(() => {
 	}
 });
 
-const _widgets = computed(() => props.widgets.filter(x => _widgetDefs.value.includes(x.name as any)));
+// 提供終了したウィジェットは、保存済みの配置に残っていても編集画面へ表示しない。
+const availableWidgets = computed(() => props.widgets.filter(x => widgetDefs.includes(x.name as any)));
+const _widgets = computed(() => availableWidgets.value.filter(x => _widgetDefs.value.includes(x.name as any)));
 
 const emit = defineEmits<{
 	(ev: 'updateWidgets', widgets: Widget[]): void;

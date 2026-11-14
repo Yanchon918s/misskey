@@ -502,8 +502,6 @@ import type {
 	MuteListResponse,
 	MyAppsRequest,
 	MyAppsResponse,
-	NiwaShowResponse,
-	NiwaWaterResponse,
 	NotesRequest,
 	NotesResponse,
 	NotesBubbleTimelineRequest,
@@ -1020,8 +1018,6 @@ export type Endpoints = {
 	'mute/delete': { req: MuteDeleteRequest; res: EmptyResponse };
 	'mute/list': { req: MuteListRequest; res: MuteListResponse };
 	'my/apps': { req: MyAppsRequest; res: MyAppsResponse };
-	'niwa/show': { req: EmptyRequest; res: NiwaShowResponse };
-	'niwa/water': { req: EmptyRequest; res: NiwaWaterResponse };
 	'notes': { req: NotesRequest; res: NotesResponse };
 	'notes/bubble-timeline': { req: NotesBubbleTimelineRequest; res: NotesBubbleTimelineResponse };
 	'notes/children': { req: NotesChildrenRequest; res: NotesChildrenResponse };

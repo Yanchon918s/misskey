@@ -48,6 +48,7 @@ export class MiUserProfile {
 	@Column('timestamp with time zone', { nullable: true })
 	public statusExpiresAt: Date | null;
 
+	// NIWA提供終了後も、既存データとスキーマの互換性を保つため保持する。
 	@Column('timestamp with time zone', { nullable: true })
 	public niwaLastWateredAt: Date | null;
 
