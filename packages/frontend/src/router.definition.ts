@@ -582,10 +582,6 @@ export const ROUTE_DEF = [{
 	component: page(() => import('@/pages/clicker.vue')),
 	loginRequired: true,
 }, {
-	path: '/niwa',
-	component: page(() => import('@/pages/niwa.vue')),
-	loginRequired: true,
-}, {
 	path: '/games',
 	component: page(() => import('@/pages/games.vue')),
 	loginRequired: false,

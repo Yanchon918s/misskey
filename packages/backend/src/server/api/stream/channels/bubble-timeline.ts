@@ -66,11 +66,7 @@ export class BubbleTimelineChannel extends Channel {
 		if (!filtered) return;
 		note = filtered; // eslint-disable-line no-param-reassign
 
-		if (this.user && isRenotePacked(note) && !isQuotePacked(note) && note.renote && Object.keys(note.renote.reactions).length > 0) {
-			note.renote.myReaction = await this.noteEntityService.populateMyReaction(note.renote, this.user.id);
-		}
-
-		this.send('note', note);
+		this.send('note', await this.noteEntityService.withMyRenoteReaction(note, this.user?.id ?? null));
 	}
 
 	@bindThis

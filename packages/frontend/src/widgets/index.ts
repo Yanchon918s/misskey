@@ -7,7 +7,6 @@ import { defineAsyncComponent } from 'vue';
 import type { App } from 'vue';
 
 export default function(app: App) {
-	app.component('WidgetNiwa', defineAsyncComponent(() => import('./WidgetNiwa.vue')));
 	app.component('WidgetProfile', defineAsyncComponent(() => import('./WidgetProfile.vue')));
 	app.component('WidgetInstanceInfo', defineAsyncComponent(() => import('./WidgetInstanceInfo.vue')));
 	app.component('WidgetMemo', defineAsyncComponent(() => import('./WidgetMemo.vue')));
@@ -46,7 +45,6 @@ export const federationWidgets = [
 ] as const;
 
 export const widgets = [
-	'niwa',
 	'profile',
 	'instanceInfo',
 	'memo',
